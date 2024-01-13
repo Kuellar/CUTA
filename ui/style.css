@@ -1,0 +1,32 @@
+FilesMenu {
+  border: 1px solid #585858;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+outputConsole {
+  border: 1px solid #585858;
+}
+
+QWidget#controls {
+  border: 1px solid #585858;
+  min-width: 200px;
+}
+
+QWidget#lineMenu {
+  color: #585858;
+}
+
+PushButtonMenu {
+  border: none;
+  text-align: left;
+  padding-left: 20px;
+}
+
+PushButtonMenu:hover {
+  background-color: #585858;
+}
+
+PushButtonMenu:pressed {
+  background-color: #6e6e6e;
+}

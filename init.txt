@@ -1,0 +1,11 @@
+Activate venv
+
+> source env/bin/activate
+
+Open designer -> not used
+
+> ./env/lib/python3.10/site-packages/qt6_applications/Qt/bin/designer
+
+Transform design to python code -> not used
+
+> pyuic6 -o main_window_ui.py ui/main_window.ui
