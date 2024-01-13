@@ -25,6 +25,11 @@ pip install -r requeriments.txt
 python3 app.py
 ```
 
+## Update
+```
+git pull
+```
+
 ## Links
 * [Matplotlib](https://matplotlib.org/)
 * [Python Qt](https://www.qt.io/qt-for-python)
