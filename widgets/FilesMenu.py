@@ -1,14 +1,13 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QStyleOption, QStyle
+from PyQt6.QtGui import QPainter
 
 
 class FilesMenu(QWidget):
     def __init__(self):
         super(QWidget, self).__init__()
-
         # Add things to Files Menu
         self.filesMenuLayout = QVBoxLayout()
         self.setLayout(self.filesMenuLayout)
-        self.setObjectName("widgetFilesMenu")
         titleLabelFilesMenu = QLabel("EXPLORER")
         lineMenu = QFrame()
         lineMenu.setFrameStyle(QFrame.Shape.HLine)
@@ -22,3 +21,9 @@ class FilesMenu(QWidget):
         self.filesFoldersLayout = QVBoxLayout()
         self.filesFolders.setLayout(self.filesFoldersLayout)
         self.filesMenuLayout.addStretch()
+
+    def paintEvent(self, event):
+        o = QStyleOption()
+        o.initFrom(self)
+        p = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, o, p, self)

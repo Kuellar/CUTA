@@ -4,7 +4,7 @@ FilesMenu {
   max-width: 300px;
 }
 
-outputConsole {
+ConsoleOutput {
   border: 1px solid #585858;
 }
 
