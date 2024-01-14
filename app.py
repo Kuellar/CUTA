@@ -8,7 +8,9 @@ from PyQt6.QtWidgets import (
     QMainWindow,
     QMenu,
     QFileDialog,
+    QSplitter,
 )
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from widgets.MplSettingsLayout import MplSettingsLayout
 from widgets.ConsoleOutput import ConsoleOutput
@@ -31,22 +33,29 @@ class Window(QMainWindow):
 
         # Create layout -> TODO: organize
         mainLayout = QHBoxLayout()
+        self.mainLayoutSplitter = QSplitter()
         self.filesMenu = FilesMenu()
-        mainLayout.addWidget(self.filesMenu)
+        self.mainLayoutSplitter.addWidget(self.filesMenu)
         self.widgetContent = QWidget()
         self.contentLayout = QVBoxLayout()
+        self.contentLayoutSplitter = QSplitter(Qt.Vertical)
         self.widgetContent.setLayout(self.contentLayout)
-        mainLayout.addWidget(self.widgetContent)
+        self.mainLayoutSplitter.addWidget(self.widgetContent)
+        mainLayout.addWidget(self.mainLayoutSplitter)
         self.canvasWorkspace = QWidget()
         self.controls = QWidget()
         self.canvasWorkspaceLayout = QHBoxLayout()
+        self.canvasWorkspaceLayoutSplitter = QSplitter()
         self.canvasWorkspace.setLayout(self.canvasWorkspaceLayout)
         self.canvasPlot = MplCanvas(self, width=10, height=8, dpi=100)
-        self.canvasWorkspaceLayout.addWidget(self.canvasPlot)
-        self.canvasWorkspaceLayout.addWidget(self.controls)
-        self.contentLayout.addWidget(self.canvasWorkspace)
+        self.canvasWorkspaceLayoutSplitter.addWidget(self.canvasPlot)
+        self.canvasWorkspaceLayoutSplitter.addWidget(self.controls)
+        self.canvasWorkspaceLayout.addWidget(self.canvasWorkspaceLayoutSplitter)
+        self.contentLayoutSplitter.addWidget(self.canvasWorkspace)
         self.outputConsole = ConsoleOutput()
-        self.contentLayout.addWidget(self.outputConsole)
+        self.contentLayoutSplitter.addWidget(self.outputConsole)
+        self.contentLayout.addWidget(self.contentLayoutSplitter)
+
 
         # Add things to Controls
         self.controlsLayout = QVBoxLayout()
