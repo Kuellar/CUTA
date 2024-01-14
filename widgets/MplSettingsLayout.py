@@ -12,6 +12,7 @@ class MplSettingsLayout(QFormLayout):
     def __init__(self, window, mlpCanvas):
         super(QFormLayout, self).__init__()
 
+        # Global
         self.titleMpl = QLineEdit()
         self.titleMpl.textChanged.connect(lambda x: mlpCanvas.change_title(x))
         self.addRow("Title:", self.titleMpl)
@@ -21,6 +22,8 @@ class MplSettingsLayout(QFormLayout):
         self.ylabelMpl = QLineEdit()
         self.ylabelMpl.textChanged.connect(lambda x: mlpCanvas.change_ylabel(x))
         self.addRow("y Label:", self.ylabelMpl)
+
+        # Specific
         self.plotColorMpl = QComboBox()
         self.plotColorMpl.addItems(
             ["blue", "green", "red", "cyan", "magenta", "yellow", "black", "white"]
@@ -31,6 +34,7 @@ class MplSettingsLayout(QFormLayout):
             )
         )
         self.addRow("Plot Color:", self.plotColorMpl)
+
         self.plotLineMpl = QComboBox()
         self.plotLineMpl.addItems(["-", "--", "-.", ":"])
         self.plotLineMpl.currentTextChanged.connect(
@@ -39,6 +43,7 @@ class MplSettingsLayout(QFormLayout):
             )
         )
         self.addRow("Line Style:", self.plotLineMpl)
+
         self.plotMarkerMpl = QComboBox()
         self.plotMarkerMpl.addItems(["", ".", "o", "s", "p", "*", "x", "|"])
         self.plotMarkerMpl.currentTextChanged.connect(
@@ -47,6 +52,7 @@ class MplSettingsLayout(QFormLayout):
             )
         )
         self.addRow("Marker:", self.plotMarkerMpl)
+
         self.plotMarkerColorMpl = QComboBox()
         self.plotMarkerColorMpl.addItems(
             ["blue", "green", "red", "cyan", "magenta", "yellow", "black", "white"]
@@ -57,6 +63,7 @@ class MplSettingsLayout(QFormLayout):
             )
         )
         self.addRow("Plot Color:", self.plotMarkerColorMpl)
+
         self.showErrorMpl = QCheckBox()
         self.showErrorMpl.stateChanged.connect(
             lambda: mlpCanvas.update_plot(
@@ -64,6 +71,7 @@ class MplSettingsLayout(QFormLayout):
             )
         )
         self.addRow("Show Error:", self.showErrorMpl)
+
         self.errorColorMpl = QComboBox()
         self.errorColorMpl.addItems(
             ["blue", "green", "red", "cyan", "magenta", "yellow", "black", "white"]
@@ -74,3 +82,12 @@ class MplSettingsLayout(QFormLayout):
             )
         )
         self.addRow("Error Color:", self.errorColorMpl)
+
+        self.drawStyleMpl = QComboBox()
+        self.drawStyleMpl.addItems(
+            ["default", "steps", "steps-pre", "steps-mid", "steps-post"]
+        )
+        self.drawStyleMpl.currentTextChanged.connect(
+            lambda x: mlpCanvas.change_drawstyle(x)
+        )
+        self.addRow("Draw Style:", self.drawStyleMpl)

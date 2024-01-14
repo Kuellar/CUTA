@@ -20,6 +20,10 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.set_ylabel(new_ylabel)
         self.draw()
 
+    def change_drawstyle(self, new_drawstyle):
+        self.axes.get_lines()[0].set_drawstyle(new_drawstyle)
+        self.draw()
+
     def update_plot(self, xdata, ydata, zdata, settings):
         # New data is plotted
         self.axes.cla()
@@ -34,6 +38,7 @@ class MplCanvas(FigureCanvasQTAgg):
                 marker=settings.plotMarkerMpl.currentText(),
                 markeredgecolor=settings.plotMarkerColorMpl.currentText(),
                 markerfacecolor=settings.plotMarkerColorMpl.currentText(),
+                drawstyle=settings.drawStyleMpl.currentText(),
             )
         else:
             self.axes.plot(
@@ -44,6 +49,7 @@ class MplCanvas(FigureCanvasQTAgg):
                 marker=settings.plotMarkerMpl.currentText(),
                 markeredgecolor=settings.plotMarkerColorMpl.currentText(),
                 markerfacecolor=settings.plotMarkerColorMpl.currentText(),
+                drawstyle=settings.drawStyleMpl.currentText(),
             )
 
         # Check all matplotlib configurations
