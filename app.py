@@ -75,19 +75,29 @@ class Window(QMainWindow):
 
     def _createMenuBar(self):
         menuBar = self.menuBar()
-        # Creating menus using a QMenu object
+        # File Menu
         fileMenu = QMenu("&File", self)
         menuBar.addMenu(fileMenu)
         fileMenu.addAction(self.openAction)
         fileMenu.addAction(self.openFolderAction)
-        # Creating menus using a title
+        # View Menu
+        viewMenu = QMenu("&View", self)
+        menuBar.addMenu(viewMenu)
+        viewMenu.addAction(self.consoleAction)
+        # Help Menu
         helpMenu = menuBar.addMenu("&Help")
 
     def _createActions(self):
         self.openAction = QAction("&Open File...", self)
-        self.openFolderAction = QAction("&Open Folder...", self)
         self.openAction.triggered.connect(self.openFileDialog)
+        self.openFolderAction = QAction("&Open Folder...", self)
         self.openFolderAction.triggered.connect(self.openFolderDialog)
+        self.consoleAction = QAction("&Console", self)
+        self.consoleAction.triggered.connect(
+            lambda: self.outputConsole.show()
+            if self.outputConsole.isHidden()
+            else self.outputConsole.hide()
+        )
 
     def openFileDialog(self):
         file_name = QFileDialog.getOpenFileName(
