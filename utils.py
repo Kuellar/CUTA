@@ -31,7 +31,7 @@ def open_data(window, file_name):
 def open_folder(window, folder_name):
     # Clean first
     for i in reversed(range(window.filesMenu.filesFoldersLayout.count())):
-        window.filesFoldersLayout.itemAt(i).widget().setParent(None)
+        window.filesMenu.filesFoldersLayout.itemAt(i).widget().setParent(None)
 
     # Add title
     folder_title = IconLabel("fa.angle-down", folder_name.split("/")[-1])
