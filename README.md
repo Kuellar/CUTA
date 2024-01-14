@@ -27,6 +27,7 @@ python3 app.py
 
 ## Update
 ```
+pip install -r requeriments.txt
 git pull
 ```
 
