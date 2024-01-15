@@ -83,5 +83,6 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.set_xlabel(xlabel)
         ylabel = settings.ylabelMpl.text()
         self.axes.set_ylabel(ylabel)
+        self.axes.grid(settings.showGridMpl.isChecked())
 
         self.draw()
