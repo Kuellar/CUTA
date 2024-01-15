@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
     QMenu,
     QFileDialog,
     QSplitter,
+    QGridLayout,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
@@ -17,6 +18,7 @@ from widgets.ConsoleOutput import ConsoleOutput
 from widgets.FilesMenu import FilesMenu
 from widgets.MplCanvas import MplCanvas
 from widgets.CollapsibleBox import CollapsibleBox
+from widgets.SliderZoom import SliderZoom
 from utils import open_data, open_folder
 
 
@@ -44,18 +46,32 @@ class Window(QMainWindow):
         mainLayout.addWidget(self.mainLayoutSplitter)
         self.canvasWorkspace = QWidget()
         self.controls = QWidget()
+        self.canvasPlot = MplCanvas(self, width=10, height=8, dpi=100)
         self.canvasWorkspaceLayout = QHBoxLayout()
         self.canvasWorkspaceLayoutSplitter = QSplitter()
         self.canvasWorkspace.setLayout(self.canvasWorkspaceLayout)
-        self.canvasPlot = MplCanvas(self, width=10, height=8, dpi=100)
-        self.canvasWorkspaceLayoutSplitter.addWidget(self.canvasPlot)
+        self.canvasPlotGrid = QWidget()
+        self.canvasPlotGridLayout = QGridLayout()
+        self.canvasPlotGrid.setLayout(self.canvasPlotGridLayout)
+        self.canvasPlotLeftSlider = SliderZoom(
+            horizontal=False, mplCanvas=self.canvasPlot
+        )
+        self.canvasPlotBottomSlider = SliderZoom(
+            horizontal=True, mplCanvas=self.canvasPlot
+        )
+        self.canvasPlotBottomSlider.setMaximumHeight(40)  # TODO: FIX
+        self.canvasPlotNull = QWidget()
+        self.canvasPlotGridLayout.addWidget(self.canvasPlotLeftSlider, 0, 0, 1, 1)
+        self.canvasPlotGridLayout.addWidget(self.canvasPlotBottomSlider, 1, 1, 1, 1)
+        self.canvasPlotGridLayout.addWidget(self.canvasPlotNull, 1, 0, 1, 1)
+        self.canvasWorkspaceLayoutSplitter.addWidget(self.canvasPlotGrid)
         self.canvasWorkspaceLayoutSplitter.addWidget(self.controls)
+        self.canvasPlotGridLayout.addWidget(self.canvasPlot, 0, 1, 1, 1)
         self.canvasWorkspaceLayout.addWidget(self.canvasWorkspaceLayoutSplitter)
         self.contentLayoutSplitter.addWidget(self.canvasWorkspace)
         self.outputConsole = ConsoleOutput()
         self.contentLayoutSplitter.addWidget(self.outputConsole)
         self.contentLayout.addWidget(self.contentLayoutSplitter)
-
 
         # Add things to Controls
         self.controlsLayout = QVBoxLayout()
@@ -78,7 +94,7 @@ class Window(QMainWindow):
         self.ydata = [0, 1, 2, 3]
         self.zdata = [0, 0.1, 0, 0]
         self.canvasPlot.update_plot(
-            self.xdata, self.ydata, self.zdata, self.mplSettingsLayout
+            self.xdata, self.ydata, self.zdata, self.mplSettingsLayout, [0, 3], [0, 3]
         )
         self.show()
 
@@ -125,12 +141,19 @@ class Window(QMainWindow):
         self.outputConsole.printOutput("Opening File " + file_to_open)
         if file_dir:
             self.lastDirOpen = file_dir
-        self.xdata, self.ydata, self.zdata, error = open_data(self, file_to_open)
+        self.xdata, self.ydata, self.zdata, self.xlimit, self.ylimit, error = open_data(
+            self, file_to_open
+        )
         if error:
             self.outputConsole.printOutput(error["msg"])
         self.outputConsole.printOutput(f"{len(self.xdata)} data points")
         self.canvasPlot.update_plot(
-            self.xdata, self.ydata, self.zdata, self.mplSettingsLayout
+            self.xdata,
+            self.ydata,
+            self.zdata,
+            self.mplSettingsLayout,
+            self.xlimit,
+            self.ylimit,
         )
 
     def openFolderDialog(self):

@@ -30,3 +30,35 @@ PushButtonMenu:hover {
 PushButtonMenu:pressed {
   background-color: #6e6e6e;
 }
+
+QDoubleRangeSlider {
+  border: 1px solid #585858;
+  /* qproperty-barColor: #0a0a80; */
+}
+
+QDoubleRangeSlider:horizontal {
+  height: 30px;
+}
+
+QDoubleRangeSlider:vertical {
+  width: 25px;
+}
+
+QDoubleRangeSlider::groove {
+  background: #2c2c2c;
+}
+
+QDoubleRangeSlider::handle:horizontal {
+  background: #585858;
+  width: 5px;
+}
+
+QDoubleRangeSlider::handle:vertical {
+  background: #585858;
+  height: 5px;
+}
+
+QDoubleRangeSlider::ticks:vertical {
+  background: #b09f9f;
+  height: 5px;
+}

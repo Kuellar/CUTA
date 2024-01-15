@@ -3,9 +3,12 @@ from matplotlib.figure import Figure
 
 
 class MplCanvas(FigureCanvasQTAgg):
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, window=None, width=5, height=4, dpi=100):
+        self.parent = window
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
+        self.xlimit = None
+        self.ylimit = None
         super().__init__(fig)
 
     def change_title(self, new_title):
@@ -24,7 +27,24 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.get_lines()[0].set_drawstyle(new_drawstyle)
         self.draw()
 
-    def update_plot(self, xdata, ydata, zdata, settings):
+    def change_xlim(self, new_xlim):
+        if self.axes.get_xlim() is not new_xlim:
+            self.axes.set_xlim(new_xlim)
+            self.draw()
+
+    def change_ylim(self, new_ylim):
+        if self.axes.get_ylim() is not new_ylim:
+            self.axes.set_ylim(new_ylim)
+            self.draw()
+
+    def update_plot(self, xdata, ydata, zdata, settings, xlimit=None, ylimit=None):
+        if xlimit:
+            self.xlimit = xlimit
+            self.parent.canvasPlotBottomSlider.setRange(xlimit)
+        if ylimit:
+            self.ylimit = ylimit
+            self.parent.canvasPlotLeftSlider.setRange(ylimit)
+
         # New data is plotted
         self.axes.cla()
         if settings.showErrorMpl.isChecked():
