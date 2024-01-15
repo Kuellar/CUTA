@@ -1,4 +1,5 @@
 import sys
+from numpy.random import randint
 from os.path import expanduser
 from PyQt6.QtWidgets import (
     QApplication,
@@ -90,11 +91,16 @@ class Window(QMainWindow):
         self.setCentralWidget(widget)
 
         # Plot
-        self.xdata = [0, 1, 2, 3]
-        self.ydata = [0, 1, 2, 3]
+        self.xdata = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        self.ydata = randint(0, 10, 10)
         self.zdata = [0, 0.1, 0, 0]
         self.canvasPlot.update_plot(
-            self.xdata, self.ydata, self.zdata, self.mplSettingsLayout, [0, 3], [0, 3]
+            self.xdata,
+            self.ydata,
+            self.zdata,
+            self.mplSettingsLayout,
+            [0, 9],
+            [self.ydata.min(), self.ydata.max()],
         )
         self.show()
 

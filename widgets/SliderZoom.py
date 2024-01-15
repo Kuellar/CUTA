@@ -46,12 +46,14 @@ class SliderZoom(QWidget):
         )
 
         if not horizontal:
+            self.firstInput.setStyleSheet("max-width: 65px")
             firstContainer = RotatableContainer(self, self.firstInput, 0)
             firstContainer.setStyleSheet(
                 "background-color:transparent; max-width: 25px"
             )
             firstContainer.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             firstContainer.rotate(-90)
+            self.secondInput.setStyleSheet("max-width: 65px")
             secondContainer = RotatableContainer(self, self.secondInput, 0)
             secondContainer.setStyleSheet(
                 "background-color:transparent; max-width: 25px"
@@ -72,15 +74,25 @@ class SliderZoom(QWidget):
 
     def setRange(self, range):
         if self.horizontal:
-            self.firstInput.setText(str(range[0]))
+            self.firstInput.setText("{:.4f}".format(range[0]))
             self.slider.setRange(range[0], range[1])
             self.slider.setValue((range[0], range[1]))
-            self.secondInput.setText(str(range[1]))
+            self.secondInput.setText("{:.4f}".format(range[1]))
         else:
-            self.firstInput.setText(str(range[1]))
+            self.firstInput.setText("{:.4f}".format(range[1]))
             self.slider.setRange(range[0], range[1])
             self.slider.setValue((range[0], range[1]))
-            self.secondInput.setText(str(range[0]))
+            self.secondInput.setText("{:.4f}".format(range[0]))
+
+    def setValue(self, value):
+        if self.horizontal:
+            self.firstInput.setText("{:.4f}".format(value[0]))
+            self.slider.setValue((value[0], value[1]))
+            self.secondInput.setText("{:.4f}".format(value[1]))
+        else:
+            self.firstInput.setText("{:.4f}".format(value[1]))
+            self.slider.setValue((value[0], value[1]))
+            self.secondInput.setText("{:.4f}".format(value[0]))
 
     def sliderMoved(self, range):
         if self.horizontal:
