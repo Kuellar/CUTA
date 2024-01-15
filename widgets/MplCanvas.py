@@ -37,6 +37,10 @@ class MplCanvas(FigureCanvasQTAgg):
             self.axes.set_ylim(new_ylim)
             self.draw()
 
+    def show_grid(self, show=True):
+        self.axes.grid(show)
+        self.draw()
+
     def update_plot(self, xdata, ydata, zdata, settings, xlimit=None, ylimit=None):
         if xlimit:
             self.xlimit = xlimit

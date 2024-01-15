@@ -90,3 +90,7 @@ class MplSettingsLayout(QFormLayout):
             lambda x: mlpCanvas.change_drawstyle(x)
         )
         self.addRow("Draw Style:", self.drawStyleMpl)
+
+        self.showGridMpl = QCheckBox()
+        self.showGridMpl.stateChanged.connect(lambda x: mlpCanvas.show_grid(x))
+        self.addRow("Show Grid:", self.showGridMpl)
