@@ -16,6 +16,7 @@ from .RotableContainer import RotatableContainer
 class SliderZoom(QWidget):
     def __init__(self, horizontal=True, mplCanvas=None):
         super(QWidget, self).__init__()
+        self.range = None
         self.horizontal = horizontal
         self.mplCanvas = mplCanvas
 
@@ -73,6 +74,7 @@ class SliderZoom(QWidget):
             self.layoutSlider.addWidget(self.secondInput, stretch=100)
 
     def setRange(self, range):
+        self.range = range
         if self.horizontal:
             self.firstInput.setText("{:.4f}".format(range[0]))
             self.slider.setRange(range[0], range[1])
@@ -83,6 +85,9 @@ class SliderZoom(QWidget):
             self.slider.setRange(range[0], range[1])
             self.slider.setValue((range[0], range[1]))
             self.secondInput.setText("{:.4f}".format(range[0]))
+
+    def getRange(self):
+        return self.range
 
     def setValue(self, value):
         if self.horizontal:

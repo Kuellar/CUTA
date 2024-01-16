@@ -14,6 +14,7 @@ class MplCanvas(FigureCanvasQTAgg):
         self.mousePressed = False
         self.zoomInit = None
         self.zoomRectangle = None
+        self.moveInit = None
         super().__init__(self.fig)
 
         # Connect events
@@ -24,13 +25,27 @@ class MplCanvas(FigureCanvasQTAgg):
         )
 
     def button_press_event(self, event):
-        if event.button is MouseButton.LEFT:
+        if (
+            event.button is MouseButton.LEFT
+            and self.parent.buttonSettings.active == "zoom"
+        ):
             if event.xdata and event.ydata:
                 self.mousePressed = True
                 self.zoomInit = [event.xdata, event.ydata]
 
+        if (
+            event.button is MouseButton.LEFT
+            and self.parent.buttonSettings.active == "move"
+        ):
+            if event.xdata and event.ydata:
+                self.mousePressed = True
+                self.moveInit = [event.xdata, event.ydata]
+
     def button_release_event(self, event):
-        if event.button is MouseButton.LEFT:
+        if (
+            event.button is MouseButton.LEFT
+            and self.parent.buttonSettings.active == "zoom"
+        ):
             self.mousePressed = False
             if self.zoomRectangle:
                 if (
@@ -60,8 +75,18 @@ class MplCanvas(FigureCanvasQTAgg):
                 self.zoomInit = None
                 self.draw()
 
+        if (
+            event.button is MouseButton.LEFT
+            and self.parent.buttonSettings.active == "move"
+        ):
+            self.mousePressed = False
+
     def on_move(self, event):
-        if event.inaxes and self.fig.canvas.mousePressed:
+        if (
+            event.inaxes
+            and self.fig.canvas.mousePressed
+            and self.parent.buttonSettings.active == "zoom"
+        ):
             if self.zoomInit:
                 if self.zoomRectangle:
                     self.zoomRectangle.remove()
@@ -75,6 +100,43 @@ class MplCanvas(FigureCanvasQTAgg):
                     )
                 )
                 self.draw()
+
+        if (
+            event.inaxes
+            and self.fig.canvas.mousePressed
+            and self.parent.buttonSettings.active == "move"
+        ):
+            if self.moveInit:
+                x_moved = -(event.xdata - self.moveInit[0]) / 2
+                y_moved = -(event.ydata - self.moveInit[1]) / 2
+                new_xlimit = [
+                    self.axes.get_xlim()[0] + x_moved,
+                    self.axes.get_xlim()[1] + x_moved,
+                ]
+                new_ylimit = [
+                    self.axes.get_ylim()[0] + y_moved,
+                    self.axes.get_ylim()[1] + y_moved,
+                ]
+                x_original = self.parent.canvasPlotBottomSlider.getRange()
+                y_original = self.parent.canvasPlotLeftSlider.getRange()
+
+                if new_xlimit[0] > x_original[0] and new_xlimit[1] < x_original[1]:
+                    self.xlimit = new_xlimit
+                    self.change_xlim(self.xlimit)
+                    # Set limits in canvas
+                    self.change_xlim(new_xlimit)
+                    # Set limits slider
+                    self.parent.canvasPlotBottomSlider.setValue(new_xlimit)
+
+                if new_ylimit[0] > y_original[0] and new_ylimit[1] < y_original[1]:
+                    self.ylimit = new_ylimit
+                    self.change_ylim(self.ylimit)
+                    # Set limits in canvas
+                    self.change_ylim(new_ylimit)
+                    # Set limits slider
+                    self.parent.canvasPlotLeftSlider.setValue(new_ylimit)
+
+                self.moveInit = [event.xdata, event.ydata]
 
     def change_title(self, new_title):
         self.axes.set_title(new_title)

@@ -16,6 +16,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from widgets.MplSettingsLayout import MplSettingsLayout
 from widgets.MplPlotSettingsLayout import MplPlotSettingsLayout
+from widgets.ButtonsSettings import ButtonsSettings
 from widgets.ConsoleOutput import ConsoleOutput
 from widgets.FilesMenu import FilesMenu
 from widgets.MplCanvas import MplCanvas
@@ -31,6 +32,7 @@ class Window(QMainWindow):
 
         # Global vars
         self.lastDirOpen = None
+        self.lastFileOpen = None
 
         self._createActions()
         self._createMenuBar()
@@ -78,7 +80,11 @@ class Window(QMainWindow):
         # Add things to Controls
         self.controlsLayout = QVBoxLayout()
         self.controls.setLayout(self.controlsLayout)
+        self.controlsLayout.setContentsMargins(0, 0, 0, 0)
         self.controls.setObjectName("controls")
+        # Buttons Settings
+        self.buttonSettings = ButtonsSettings(self)
+        self.controlsLayout.addWidget(self.buttonSettings)
         # Global Settings
         self.mplSettingsBox = CollapsibleBox("Global Settings")
         self.mplSettingsLayout = MplSettingsLayout(self.canvasPlot)
@@ -116,6 +122,10 @@ class Window(QMainWindow):
             ],
         )
         self.show()
+
+        # Save splitter values
+        self.ratioPlotSettings = self.canvasWorkspaceLayoutSplitter.sizes()
+        self.canvasPlotGridHeight = self.canvasPlotGrid.frameGeometry().height()
 
     def _createMenuBar(self):
         menuBar = self.menuBar()
@@ -175,6 +185,7 @@ class Window(QMainWindow):
             self.xlimit,
             self.ylimit,
         )
+        self.lastFileOpen = file_to_open
 
     def openFolderDialog(self):
         folder_name = QFileDialog.getExistingDirectory(

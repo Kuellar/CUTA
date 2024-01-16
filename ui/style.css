@@ -62,3 +62,26 @@ QDoubleRangeSlider::ticks:vertical {
   background: #b09f9f;
   height: 5px;
 }
+
+ButtonsSettings {
+  background-color: #000000;
+}
+
+CustomButton {
+  border: 1px solid #585858;
+  background-color: #3e3e3e;
+  height: 40%;
+}
+
+CustomButton:hover {
+  background-color: #585858;
+}
+
+CustomButton:pressed {
+  background-color: #6e6e6e;
+}
+
+CustomButton#active {
+  border: 1px solid #585858;
+  background-color: #6e6e6e;
+}
