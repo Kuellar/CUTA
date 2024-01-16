@@ -33,9 +33,20 @@ class MplCanvas(FigureCanvasQTAgg):
         if event.button is MouseButton.LEFT:
             self.mousePressed = False
             if self.zoomRectangle:
-                if self.zoomInit[0] != event.xdata and event.xdata and event.ydata and self.zoomInit[1] != event.ydata:
-                    valueX = [min(self.zoomInit[0], event.xdata) , max(self.zoomInit[0], event.xdata)]
-                    valueY = [min(self.zoomInit[1], event.ydata), max(self.zoomInit[1], event.ydata)]
+                if (
+                    self.zoomInit[0] != event.xdata
+                    and event.xdata
+                    and event.ydata
+                    and self.zoomInit[1] != event.ydata
+                ):
+                    valueX = [
+                        min(self.zoomInit[0], event.xdata),
+                        max(self.zoomInit[0], event.xdata),
+                    ]
+                    valueY = [
+                        min(self.zoomInit[1], event.ydata),
+                        max(self.zoomInit[1], event.ydata),
+                    ]
                     # Set limits in canvas
                     self.change_xlim(valueX)
                     self.change_ylim(valueY)
@@ -60,7 +71,7 @@ class MplCanvas(FigureCanvasQTAgg):
                         event.xdata - self.zoomInit[0],
                         event.ydata - self.zoomInit[1],
                         fill=False,
-                        linestyle="--"
+                        linestyle="--",
                     )
                 )
                 self.draw()
@@ -91,11 +102,28 @@ class MplCanvas(FigureCanvasQTAgg):
             self.axes.set_ylim(new_ylim)
             self.draw()
 
+    def change_xscale(self, new_xscale):
+        self.axes.set_xscale(new_xscale)
+        self.draw()
+
+    def change_yscale(self, new_yscale):
+        self.axes.set_yscale(new_yscale)
+        self.draw()
+
     def show_grid(self, show=True):
         self.axes.grid(show)
         self.draw()
 
-    def update_plot(self, xdata, ydata, zdata, globalSettings, specificSettings, xlimit=None, ylimit=None):
+    def update_plot(
+        self,
+        xdata,
+        ydata,
+        zdata,
+        globalSettings,
+        specificSettings,
+        xlimit=None,
+        ylimit=None,
+    ):
         if xlimit:
             self.xlimit = xlimit
             self.parent.canvasPlotBottomSlider.setRange(xlimit)
@@ -138,5 +166,7 @@ class MplCanvas(FigureCanvasQTAgg):
         ylabel = globalSettings.ylabelMpl.text()
         self.axes.set_ylabel(ylabel)
         self.axes.grid(globalSettings.showGridMpl.isChecked())
+        self.axes.set_xscale(globalSettings.xscaleMpl.currentText())
+        self.axes.set_yscale(globalSettings.yscaleMpl.currentText())
 
         self.draw()

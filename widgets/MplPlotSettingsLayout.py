@@ -1,4 +1,3 @@
-import qtawesome as qta
 from PyQt6.QtWidgets import (
     QFormLayout,
     QCheckBox,
