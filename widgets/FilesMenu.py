@@ -19,6 +19,7 @@ class FilesMenu(QWidget):
         self.filesFolders = QWidget()
         self.filesMenuLayout.addWidget(self.filesFolders)
         self.filesFoldersLayout = QVBoxLayout()
+        self.filesFoldersLayout.setContentsMargins(0, 0, 0, 0)
         self.filesFolders.setLayout(self.filesFoldersLayout)
         self.filesMenuLayout.addStretch()
 
