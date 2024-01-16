@@ -22,7 +22,7 @@ from widgets.FilesMenu import FilesMenu
 from widgets.MplCanvas import MplCanvas
 from widgets.CollapsibleBox import CollapsibleBox
 from widgets.SliderZoom import SliderZoom
-from utils import open_data, open_folder
+from utils import open_data
 
 
 class Window(QMainWindow):
@@ -40,7 +40,7 @@ class Window(QMainWindow):
         # Create layout -> TODO: organize
         mainLayout = QHBoxLayout()
         self.mainLayoutSplitter = QSplitter()
-        self.filesMenu = FilesMenu()
+        self.filesMenu = FilesMenu(self)
         self.mainLayoutSplitter.addWidget(self.filesMenu)
         self.widgetContent = QWidget()
         self.contentLayout = QVBoxLayout()
@@ -198,7 +198,7 @@ class Window(QMainWindow):
         if folder_name:
             self.lastDirOpen = folder_name
             self.outputConsole.printOutput("Opening Folder " + folder_name)
-            _ = open_folder(self, folder_name)
+            self.filesMenu.open_folder(folder_name)
 
 
 if __name__ == "__main__":
