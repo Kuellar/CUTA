@@ -80,7 +80,7 @@ class Window(QMainWindow):
         # Add things to Controls
         self.controlsLayout = QVBoxLayout()
         self.controls.setLayout(self.controlsLayout)
-        self.controlsLayout.setContentsMargins(0, 0, 0, 0)
+        self.controlsLayout.setContentsMargins(1, 0, 1, 0)
         self.controls.setObjectName("controls")
         # Buttons Settings
         self.buttonSettings = ButtonsSettings(self)
