@@ -56,6 +56,7 @@ class Window(QMainWindow):
         self.canvasWorkspace.setLayout(self.canvasWorkspaceLayout)
         self.canvasPlotGrid = QWidget()
         self.canvasPlotGridLayout = QGridLayout()
+        self.canvasPlotGridLayout.setContentsMargins(0, 0, 10, 0)
         self.canvasPlotGrid.setLayout(self.canvasPlotGridLayout)
         self.canvasPlotLeftSlider = SliderZoom(
             horizontal=False, mplCanvas=self.canvasPlot
