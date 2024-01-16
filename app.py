@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from widgets.MplSettingsLayout import MplSettingsLayout
+from widgets.MplPlotSettingsLayout import MplPlotSettingsLayout
 from widgets.ConsoleOutput import ConsoleOutput
 from widgets.FilesMenu import FilesMenu
 from widgets.MplCanvas import MplCanvas
@@ -78,10 +79,16 @@ class Window(QMainWindow):
         self.controlsLayout = QVBoxLayout()
         self.controls.setLayout(self.controlsLayout)
         self.controls.setObjectName("controls")
-        self.mplSettingsBox = CollapsibleBox("Matplotlib Settings")
-        self.mplSettingsLayout = MplSettingsLayout(self, self.canvasPlot)
+        # Global Settings
+        self.mplSettingsBox = CollapsibleBox("Global Settings")
+        self.mplSettingsLayout = MplSettingsLayout(self.canvasPlot)
         self.controlsLayout.addWidget(self.mplSettingsBox)
         self.mplSettingsBox.setContentLayout(self.mplSettingsLayout)
+        # Plot Setting
+        self.mplPlotSettingsBox = CollapsibleBox("Plot Settings")
+        self.mplPlotSettingsLayout = MplPlotSettingsLayout(self, self.canvasPlot, self.mplSettingsLayout)
+        self.controlsLayout.addWidget(self.mplPlotSettingsBox)
+        self.mplPlotSettingsBox.setContentLayout(self.mplPlotSettingsLayout)
 
         self.controlsLayout.addStretch()
 
@@ -93,12 +100,13 @@ class Window(QMainWindow):
         # Plot
         self.xdata = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.ydata = randint(0, 10, 10)
-        self.zdata = [0, 0.1, 0, 0]
+        self.zdata = [0, 0.1, 0, 0, 0.3, 0.2, 0, 0, 0.5, 0]
         self.canvasPlot.update_plot(
             self.xdata,
             self.ydata,
             self.zdata,
             self.mplSettingsLayout,
+            self.mplPlotSettingsLayout,
             [0, 9],
             [self.ydata.min(), self.ydata.max()],
         )
@@ -158,6 +166,7 @@ class Window(QMainWindow):
             self.ydata,
             self.zdata,
             self.mplSettingsLayout,
+            self.mplPlotSettingsLayout,
             self.xlimit,
             self.ylimit,
         )

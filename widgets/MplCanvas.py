@@ -95,7 +95,7 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.grid(show)
         self.draw()
 
-    def update_plot(self, xdata, ydata, zdata, settings, xlimit=None, ylimit=None):
+    def update_plot(self, xdata, ydata, zdata, globalSettings, specificSettings, xlimit=None, ylimit=None):
         if xlimit:
             self.xlimit = xlimit
             self.parent.canvasPlotBottomSlider.setRange(xlimit)
@@ -105,38 +105,38 @@ class MplCanvas(FigureCanvasQTAgg):
 
         # New data is plotted
         self.axes.cla()
-        if settings.showErrorMpl.isChecked():
+        if specificSettings.showErrorMpl.isChecked():
             self.axes.errorbar(
                 xdata,
                 ydata,
                 yerr=zdata,
-                ecolor=settings.errorColorMpl.currentText(),
-                color=settings.plotColorMpl.currentText(),
-                linestyle=settings.plotLineMpl.currentText(),
-                marker=settings.plotMarkerMpl.currentText(),
-                markeredgecolor=settings.plotMarkerColorMpl.currentText(),
-                markerfacecolor=settings.plotMarkerColorMpl.currentText(),
-                drawstyle=settings.drawStyleMpl.currentText(),
+                ecolor=specificSettings.errorColorMpl.currentText(),
+                color=specificSettings.plotColorMpl.currentText(),
+                linestyle=specificSettings.plotLineMpl.currentText(),
+                marker=specificSettings.plotMarkerMpl.currentText(),
+                markeredgecolor=specificSettings.plotMarkerColorMpl.currentText(),
+                markerfacecolor=specificSettings.plotMarkerColorMpl.currentText(),
+                drawstyle=specificSettings.drawStyleMpl.currentText(),
             )
         else:
             self.axes.plot(
                 xdata,
                 ydata,
-                color=settings.plotColorMpl.currentText(),
-                linestyle=settings.plotLineMpl.currentText(),
-                marker=settings.plotMarkerMpl.currentText(),
-                markeredgecolor=settings.plotMarkerColorMpl.currentText(),
-                markerfacecolor=settings.plotMarkerColorMpl.currentText(),
-                drawstyle=settings.drawStyleMpl.currentText(),
+                color=specificSettings.plotColorMpl.currentText(),
+                linestyle=specificSettings.plotLineMpl.currentText(),
+                marker=specificSettings.plotMarkerMpl.currentText(),
+                markeredgecolor=specificSettings.plotMarkerColorMpl.currentText(),
+                markerfacecolor=specificSettings.plotMarkerColorMpl.currentText(),
+                drawstyle=specificSettings.drawStyleMpl.currentText(),
             )
 
         # Check all matplotlib configurations
-        title = settings.titleMpl.text()
+        title = globalSettings.titleMpl.text()
         self.axes.set_title(title)
-        xlabel = settings.xlabelMpl.text()
+        xlabel = globalSettings.xlabelMpl.text()
         self.axes.set_xlabel(xlabel)
-        ylabel = settings.ylabelMpl.text()
+        ylabel = globalSettings.ylabelMpl.text()
         self.axes.set_ylabel(ylabel)
-        self.axes.grid(settings.showGridMpl.isChecked())
+        self.axes.grid(globalSettings.showGridMpl.isChecked())
 
         self.draw()
