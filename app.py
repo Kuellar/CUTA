@@ -86,7 +86,9 @@ class Window(QMainWindow):
         self.mplSettingsBox.setContentLayout(self.mplSettingsLayout)
         # Plot Setting
         self.mplPlotSettingsBox = CollapsibleBox("Plot Settings")
-        self.mplPlotSettingsLayout = MplPlotSettingsLayout(self, self.canvasPlot, self.mplSettingsLayout)
+        self.mplPlotSettingsLayout = MplPlotSettingsLayout(
+            self, self.canvasPlot, self.mplSettingsLayout
+        )
         self.controlsLayout.addWidget(self.mplPlotSettingsBox)
         self.mplPlotSettingsBox.setContentLayout(self.mplPlotSettingsLayout)
 
@@ -107,8 +109,11 @@ class Window(QMainWindow):
             self.zdata,
             self.mplSettingsLayout,
             self.mplPlotSettingsLayout,
-            [0, 9],
-            [self.ydata.min(), self.ydata.max()],
+            [0 - 9 * 5 / 100, 9 + 9 * 5 / 100],  #  Give 5% more
+            [
+                self.ydata.min() - (self.ydata.max() - self.ydata.min()) * 5 / 100,
+                self.ydata.max() + (self.ydata.max() - self.ydata.min()) * 5 / 100,
+            ],
         )
         self.show()
 

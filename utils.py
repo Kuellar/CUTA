@@ -39,17 +39,20 @@ def open_data(window, file_name):
         except:
             err += 1
 
+    lim_x = [min_x-(max_x-min_x)*5/100, max_x+(max_x-min_x)*5/100]
+    lim_y = [min_y-(max_y-min_y)*5/100, max_y+(max_y-min_y)*5/100]
+
     window.setWindowTitle(file_name.split("/")[-1] + " - CUTA")
 
     if err == 0:
-        return x, y, z, [min_x, max_x], [min_y, max_y], None
+        return x, y, z, lim_x, lim_y, None
     else:
         return (
             x,
             y,
             z,
-            [min_x, max_x],
-            [min_y, max_y],
+            lim_x,
+            lim_y,
             {"error": 1, "msg": f"Incorrect format in {err} lines"},
         )
 
