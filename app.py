@@ -1,6 +1,7 @@
 import sys
 from numpy.random import randint
 from os.path import expanduser
+from pathlib import Path
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -23,6 +24,7 @@ from widgets.MplCanvas import MplCanvas
 from widgets.CollapsibleBox import CollapsibleBox
 from widgets.SliderZoom import SliderZoom
 from utils import open_data
+from data import Points, PlotPoints
 
 
 class Window(QMainWindow):
@@ -33,6 +35,7 @@ class Window(QMainWindow):
         # Global vars
         self.lastDirOpen = None
         self.lastFileOpen = None
+        self.plotPoints = None
 
         self._createActions()
         self._createMenuBar()
@@ -107,21 +110,12 @@ class Window(QMainWindow):
         self.setCentralWidget(widget)
 
         # Plot
-        self.xdata = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        self.ydata = randint(0, 10, 10)
-        self.zdata = [0, 0.1, 0, 0, 0.3, 0.2, 0, 0, 0.5, 0]
-        self.canvasPlot.update_plot(
-            self.xdata,
-            self.ydata,
-            self.zdata,
-            self.mplSettingsLayout,
-            self.mplPlotSettingsLayout,
-            [0 - 9 * 5 / 100, 9 + 9 * 5 / 100],  #  Give 5% more
-            [
-                self.ydata.min() - (self.ydata.max() - self.ydata.min()) * 5 / 100,
-                self.ydata.max() + (self.ydata.max() - self.ydata.min()) * 5 / 100,
-            ],
-        )
+        xdata = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        ydata = randint(0, 10, 10)
+        errordata = [0, 0.1, 0, 0, 0.3, 0.2, 0, 0, 0.5, 0]
+        self.plotPoints = PlotPoints("Start Plot", Points(xdata, ydata, errordata))
+
+        self.canvasPlot.update_plot(self.plotPoints, self.mplSettingsLayout, self.mplPlotSettingsLayout)
         self.show()
 
         # Save splitter values
@@ -171,20 +165,16 @@ class Window(QMainWindow):
         self.outputConsole.printOutput("Opening File " + file_to_open)
         if file_dir:
             self.lastDirOpen = file_dir
-        self.xdata, self.ydata, self.zdata, self.xlimit, self.ylimit, error = open_data(
+        self.plotPoints, error = open_data(
             self, file_to_open
         )
         if error:
             self.outputConsole.printOutput(error["msg"])
-        self.outputConsole.printOutput(f"{len(self.xdata)} data points")
+        self.outputConsole.printOutput(f"{len(self.plotPoints.points.x)} data points")
         self.canvasPlot.update_plot(
-            self.xdata,
-            self.ydata,
-            self.zdata,
+            self.plotPoints,
             self.mplSettingsLayout,
             self.mplPlotSettingsLayout,
-            self.xlimit,
-            self.ylimit,
         )
         self.lastFileOpen = file_to_open
 
@@ -204,7 +194,8 @@ class Window(QMainWindow):
 if __name__ == "__main__":
     app = QApplication([])
     win = Window()
-    with open("./ui/style.css", "r") as fh:
+    css_path = (Path(__file__).parent / "./ui/style.css").resolve()
+    with open(css_path, "r") as fh:
         app.setStyleSheet(fh.read())
     win.show()
     sys.exit(app.exec())

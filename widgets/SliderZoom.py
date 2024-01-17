@@ -118,7 +118,7 @@ class SliderZoom(QWidget):
         ) and value.count(".") < 2:
             if lastChar != ".":
                 if self.horizontal:
-                    if float(value) >= self.mplCanvas.xlimit[0]:
+                    if float(value) >= self.mplCanvas.pointPlot.x_limit[0]:
                         if float(value) <= float(self.secondInput.text()):
                             self.mplCanvas.change_xlim(
                                 [float(value), self.mplCanvas.axes.get_xlim()[1]]
@@ -142,18 +142,18 @@ class SliderZoom(QWidget):
                     else:
                         self.mplCanvas.change_xlim(
                             [
-                                self.mplCanvas.xlimit[0],
+                                self.mplCanvas.pointPlot.x_limit[0],
                                 self.mplCanvas.axes.get_xlim()[1],
                             ]
                         )
                         self.slider.setValue(
                             (
-                                self.mplCanvas.xlimit[0],
+                                self.mplCanvas.pointPlot.x_limit[0],
                                 self.mplCanvas.axes.get_xlim()[1],
                             )
                         )
                 else:
-                    if float(value) <= self.mplCanvas.ylimit[1]:
+                    if float(value) <= self.mplCanvas.pointPlot.y_limit[1]:
                         if float(value) >= float(self.secondInput.text()):
                             self.mplCanvas.change_ylim(
                                 [self.mplCanvas.axes.get_ylim()[0], float(value)]
@@ -178,13 +178,13 @@ class SliderZoom(QWidget):
                         self.mplCanvas.change_ylim(
                             [
                                 self.mplCanvas.axes.get_ylim()[0],
-                                self.mplCanvas.ylimit[1],
+                                self.mplCanvas.pointPlot.y_limit[1],
                             ]
                         )
                         self.slider.setValue(
                             (
                                 self.mplCanvas.axes.get_ylim()[0],
-                                self.mplCanvas.ylimit[1],
+                                self.mplCanvas.pointPlot.y_limit[1],
                             )
                         )
         else:
@@ -195,9 +195,9 @@ class SliderZoom(QWidget):
             if (
                 self.firstInput.text() == ""
                 or self.firstInput.text() == "-"
-                or float(self.firstInput.text()) < self.mplCanvas.xlimit[0]
+                or float(self.firstInput.text()) < self.mplCanvas.pointPlot.x_limit[0]
             ):
-                self.firstInput.setText("{:.4f}".format(self.mplCanvas.xlimit[0]))
+                self.firstInput.setText("{:.4f}".format(self.mplCanvas.pointPlot.x_limit[0]))
             elif float(self.firstInput.text()) > float(self.secondInput.text()):
                 self.firstInput.setText(
                     "{:.4f}".format(float(self.secondInput.text()) - 0.001)
@@ -206,9 +206,9 @@ class SliderZoom(QWidget):
             if (
                 self.firstInput.text() == ""
                 or self.firstInput.text() == "-"
-                or float(self.firstInput.text()) > self.mplCanvas.ylimit[1]
+                or float(self.firstInput.text()) > self.mplCanvas.pointPlot.y_limit[1]
             ):
-                self.firstInput.setText("{:.4f}".format(self.mplCanvas.ylimit[1]))
+                self.firstInput.setText("{:.4f}".format(self.mplCanvas.pointPlot.y_limit[1]))
             elif float(self.firstInput.text()) < float(self.secondInput.text()):
                 self.firstInput.setText(
                     "{:.4f}".format(float(self.secondInput.text()) + 0.001)
@@ -223,7 +223,7 @@ class SliderZoom(QWidget):
         ) and value.count(".") < 2:
             if lastChar != ".":
                 if self.horizontal:
-                    if float(value) <= self.mplCanvas.xlimit[1]:
+                    if float(value) <= self.mplCanvas.pointPlot.x_limit[1]:
                         if float(value) >= float(self.firstInput.text()):
                             self.mplCanvas.change_xlim(
                                 [self.mplCanvas.axes.get_xlim()[0], float(value)]
@@ -248,17 +248,17 @@ class SliderZoom(QWidget):
                         self.mplCanvas.change_xlim(
                             [
                                 self.mplCanvas.axes.get_xlim()[0],
-                                self.mplCanvas.xlimit[1],
+                                self.mplCanvas.pointPlot.x_limit[1],
                             ]
                         )
                         self.slider.setValue(
                             (
                                 self.mplCanvas.axes.get_xlim()[0],
-                                self.mplCanvas.xlimit[1],
+                                self.mplCanvas.pointPlot.x_limit[1],
                             )
                         )
                 else:
-                    if float(value) >= self.mplCanvas.ylimit[0]:
+                    if float(value) >= self.mplCanvas.pointPlot.y_limit[0]:
                         if float(value) <= float(self.firstInput.text()):
                             self.mplCanvas.change_ylim(
                                 [float(value), self.mplCanvas.axes.get_ylim()[1]]
@@ -282,13 +282,13 @@ class SliderZoom(QWidget):
                     else:
                         self.mplCanvas.change_ylim(
                             [
-                                self.mplCanvas.ylimit[0],
+                                self.mplCanvas.pointPlot.y_limit[0],
                                 self.mplCanvas.axes.get_ylim()[1],
                             ]
                         )
                         self.slider.setValue(
                             (
-                                self.mplCanvas.ylimit[0],
+                                self.mplCanvas.pointPlot.y_limit[0],
                                 self.mplCanvas.axes.get_ylim()[1],
                             )
                         )
@@ -300,9 +300,9 @@ class SliderZoom(QWidget):
             if (
                 self.secondInput.text() == ""
                 or self.secondInput.text() == "-"
-                or float(self.secondInput.text()) > self.mplCanvas.xlimit[1]
+                or float(self.secondInput.text()) > self.mplCanvas.pointPlot.x_limit[1]
             ):
-                self.secondInput.setText("{:.4f}".format(self.mplCanvas.xlimit[1]))
+                self.secondInput.setText("{:.4f}".format(self.mplCanvas.pointPlot.x_limit[1]))
             elif float(self.secondInput.text()) < float(self.firstInput.text()):
                 self.secondInput.setText(
                     "{:.4f}".format(float(self.firstInput.text()) + 0.001)
@@ -311,9 +311,9 @@ class SliderZoom(QWidget):
             if (
                 self.secondInput.text() == ""
                 or self.secondInput.text() == "-"
-                or float(self.secondInput.text()) < self.mplCanvas.ylimit[0]
+                or float(self.secondInput.text()) < self.mplCanvas.pointPlot.y_limit[0]
             ):
-                self.secondInput.setText("{:.4f}".format(self.mplCanvas.ylimit[0]))
+                self.secondInput.setText("{:.4f}".format(self.mplCanvas.pointPlot.y_limit[0]))
             elif float(self.secondInput.text()) > float(self.firstInput.text()):
                 self.secondInput.setText(
                     "{:.4f}".format(float(self.firstInput.text()) - 0.001)

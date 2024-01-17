@@ -2,6 +2,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import MouseButton
 from matplotlib.patches import Rectangle
+from data import PlotPoints
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -9,8 +10,7 @@ class MplCanvas(FigureCanvasQTAgg):
         self.parent = window
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
-        self.xlimit = None
-        self.ylimit = None
+        self.pointPlot = None
         self.mousePressed = False
         self.zoomInit = None
         self.zoomRectangle = None
@@ -121,16 +121,16 @@ class MplCanvas(FigureCanvasQTAgg):
                 y_original = self.parent.canvasPlotLeftSlider.getRange()
 
                 if new_xlimit[0] > x_original[0] and new_xlimit[1] < x_original[1]:
-                    self.xlimit = new_xlimit
-                    self.change_xlim(self.xlimit)
+                    self.pointPlot.set_x_limit(new_xlimit)
+                    self.change_xlim(new_xlimit)
                     # Set limits in canvas
                     self.change_xlim(new_xlimit)
                     # Set limits slider
                     self.parent.canvasPlotBottomSlider.setValue(new_xlimit)
 
                 if new_ylimit[0] > y_original[0] and new_ylimit[1] < y_original[1]:
-                    self.ylimit = new_ylimit
-                    self.change_ylim(self.ylimit)
+                    self.pointPlot.set_y_limit(new_ylimit)
+                    self.change_ylim(new_ylimit)
                     # Set limits in canvas
                     self.change_ylim(new_ylimit)
                     # Set limits slider
@@ -176,30 +176,19 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.grid(show)
         self.draw()
 
-    def update_plot(
-        self,
-        xdata,
-        ydata,
-        zdata,
-        globalSettings,
-        specificSettings,
-        xlimit=None,
-        ylimit=None,
-    ):
-        if xlimit:
-            self.xlimit = xlimit
-            self.parent.canvasPlotBottomSlider.setRange(xlimit)
-        if ylimit:
-            self.ylimit = ylimit
-            self.parent.canvasPlotLeftSlider.setRange(ylimit)
+    def update_plot(self, plotPoints: PlotPoints, globalSettings, specificSettings):
+        self.pointPlot = plotPoints
+
+        self.parent.canvasPlotBottomSlider.setRange(plotPoints.x_range)
+        self.parent.canvasPlotLeftSlider.setRange(plotPoints.y_range)
 
         # New data is plotted
         self.axes.cla()
         if specificSettings.showErrorMpl.isChecked():
             self.axes.errorbar(
-                xdata,
-                ydata,
-                yerr=zdata,
+                plotPoints.points.x,
+                plotPoints.points.y,
+                yerr=plotPoints.points.error,
                 ecolor=specificSettings.errorColorMpl.currentText(),
                 color=specificSettings.plotColorMpl.currentText(),
                 linestyle=specificSettings.plotLineMpl.currentText(),
@@ -210,8 +199,8 @@ class MplCanvas(FigureCanvasQTAgg):
             )
         else:
             self.axes.plot(
-                xdata,
-                ydata,
+                plotPoints.points.x,
+                plotPoints.points.y,
                 color=specificSettings.plotColorMpl.currentText(),
                 linestyle=specificSettings.plotLineMpl.currentText(),
                 marker=specificSettings.plotMarkerMpl.currentText(),
