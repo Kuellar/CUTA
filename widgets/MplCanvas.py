@@ -2,7 +2,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import MouseButton
 from matplotlib.patches import Rectangle
-from data import PlotPoints
+from data import PlotPoints, PlotHorizo
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -11,6 +11,7 @@ class MplCanvas(FigureCanvasQTAgg):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         self.pointPlot = None
+        self.horizoPlot = None
         self.mousePressed = False
         self.zoomInit = None
         self.zoomRectangle = None
@@ -73,7 +74,7 @@ class MplCanvas(FigureCanvasQTAgg):
                 self.zoomRectangle.remove()
                 self.zoomRectangle = None
                 self.zoomInit = None
-                self.draw()
+                self.draw_texts()
 
         if (
             event.button is MouseButton.LEFT
@@ -137,6 +138,7 @@ class MplCanvas(FigureCanvasQTAgg):
                     self.parent.canvasPlotLeftSlider.setValue(new_ylimit)
 
                 self.moveInit = [event.xdata, event.ydata]
+                self.draw_texts()
 
     def change_title(self, new_title):
         self.axes.set_title(new_title)
@@ -176,8 +178,48 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.grid(show)
         self.draw()
 
-    def update_plot(self, plotPoints: PlotPoints, globalSettings, specificSettings):
+    def draw_texts(self):
+        for text in self.axes.texts:
+            text.remove()
+        if self.horizoPlot:
+            base_pos = (
+                self.axes.get_ylim()[0]
+                + (self.axes.get_ylim()[1] - self.axes.get_ylim()[0])
+                * self.horizoPlot.names_y
+            )
+            last_text = None
+            for name_i, x in enumerate(
+                [(1 + self.horizoPlot.z) * elem for elem in self.horizoPlot.x]
+            ):
+                if x > self.pointPlot.x_limit[0] and x < self.pointPlot.x_limit[1]:
+                    last_text = self.axes.text(x, base_pos, self.horizoPlot.names[name_i])
+                    self.draw()
+
+                    # Check if collide with other text
+                    last_text_bbox =  self.axes.transData.inverted().transform_bbox(last_text.get_window_extent())
+                    bbox = None
+
+                    for text in self.axes.texts[:-1]:
+                        bbox = self.axes.transData.inverted().transform_bbox(text.get_window_extent())
+                        if last_text_bbox.x0 >= bbox.x0 and last_text_bbox.x0 <= bbox.x1 and last_text_bbox.y0 == bbox.y0:
+                            last_text.set_position((x,last_text.get_position()[1]+bbox.y1-bbox.y0))
+                            self.draw()
+                            last_text_bbox =  self.axes.transData.inverted().transform_bbox(last_text.get_window_extent())
+                        elif last_text_bbox.x1 >= bbox.x0 and last_text_bbox.x1 <= bbox.x1 and last_text_bbox.y0 == bbox.y0:
+                            last_text.set_position((x,last_text.get_position()[1]+bbox.y1-bbox.y0))
+                            self.draw()
+                            last_text_bbox = self.axes.transData.inverted().transform_bbox(last_text.get_window_extent())
+
+
+    def update_plot(
+        self,
+        plotPoints: PlotPoints,
+        plotHorizo: PlotHorizo,
+        globalSettings,
+        specificSettings,
+    ):
         self.pointPlot = plotPoints
+        self.horizoPlot = plotHorizo
 
         self.parent.canvasPlotBottomSlider.setRange(plotPoints.x_range)
         self.parent.canvasPlotLeftSlider.setRange(plotPoints.y_range)
@@ -220,4 +262,24 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.set_xscale(globalSettings.xscaleMpl.currentText())
         self.axes.set_yscale(globalSettings.yscaleMpl.currentText())
 
-        self.draw()
+        # Check horizo
+        if plotHorizo:
+            self.axes.vlines(
+                x=[(1 + plotHorizo.z) * elem for elem in plotHorizo.x],
+                ymin=plotPoints.y_range[0],
+                ymax=plotPoints.y_range[1],
+                linestyles=plotHorizo.linestyles,
+                colors=plotHorizo.colors,
+                linewidth=plotHorizo.width,
+            )
+
+
+        # Fix lim
+        self.change_xlim(plotPoints.x_limit)
+        self.change_ylim(plotPoints.y_limit)
+        self.draw_texts()
+
+        # Current size in inches...
+        # print(self.figure.get_size_inches()*self.figure.dpi)  # 10 and 8 hinches
+        # print(self.axes.get_window_extent().transformed(self.axes.get_figure().dpi_scale_trans.inverted()).width*self.axes.get_figure().dpi)
+        # print(self.axes.get_window_extent().transformed(self.axes.get_figure().dpi_scale_trans.inverted()).height*self.axes.get_figure().dpi)

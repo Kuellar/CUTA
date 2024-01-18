@@ -104,10 +104,12 @@ class SliderZoom(QWidget):
             self.firstInput.setText("{:.4f}".format(range[0]))
             self.secondInput.setText("{:.4f}".format(range[1]))
             self.mplCanvas.change_xlim(range)
+            self.mplCanvas.draw_texts()
         else:
             self.firstInput.setText("{:.4f}".format(range[1]))
             self.secondInput.setText("{:.4f}".format(range[0]))
             self.mplCanvas.change_ylim(range)
+            self.mplCanvas.draw_texts()
 
     def firstInputChanged(self, value):
         if not value or value == "-":

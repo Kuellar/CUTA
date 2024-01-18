@@ -1,12 +1,12 @@
 class Points:
-    def __init__(self):
+    def __init__(self) -> None:
         self.x = []
         self.y = []
         self.error = []
         self.x_border = [None, None]
         self.y_border = [None, None]
 
-    def __init__(self, x: list[float], y: list[float], error: list[float]):
+    def __init__(self, x: list[float], y: list[float], error: list[float]) -> None:
         self.x = x
         self.y = y
         self.error = error

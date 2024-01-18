@@ -95,6 +95,7 @@ class ButtonsSettings(QWidget):
         self.win.canvasPlotLeftSlider.setValue(y_original)
         self.win.canvasPlot.change_xlim(x_original)
         self.win.canvasPlot.change_ylim(y_original)
+        self.win.canvasPlot.draw_texts()
 
     def take_screenshot(self):
         self.moveButton.set_active(False)

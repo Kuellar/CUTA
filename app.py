@@ -24,7 +24,7 @@ from widgets.MplCanvas import MplCanvas
 from widgets.CollapsibleBox import CollapsibleBox
 from widgets.SliderZoom import SliderZoom
 from utils import open_data
-from data import Points, PlotPoints
+from data import Points, PlotPoints, PlotHorizo
 
 
 class Window(QMainWindow):
@@ -36,6 +36,7 @@ class Window(QMainWindow):
         self.lastDirOpen = None
         self.lastFileOpen = None
         self.plotPoints = None
+        self.plotHorizo = None
 
         self._createActions()
         self._createMenuBar()
@@ -115,7 +116,12 @@ class Window(QMainWindow):
         errordata = [0, 0.1, 0, 0, 0.3, 0.2, 0, 0, 0.5, 0]
         self.plotPoints = PlotPoints("Start Plot", Points(xdata, ydata, errordata))
 
-        self.canvasPlot.update_plot(self.plotPoints, self.mplSettingsLayout, self.mplPlotSettingsLayout)
+        self.canvasPlot.update_plot(
+            self.plotPoints,
+            self.plotHorizo,
+            self.mplSettingsLayout,
+            self.mplPlotSettingsLayout,
+        )
         self.show()
 
         # Save splitter values
@@ -165,14 +171,24 @@ class Window(QMainWindow):
         self.outputConsole.printOutput("Opening File " + file_to_open)
         if file_dir:
             self.lastDirOpen = file_dir
-        self.plotPoints, error = open_data(
-            self, file_to_open
-        )
+        plotData, error = open_data(self, file_to_open)
+
         if error:
             self.outputConsole.printOutput(error["msg"])
-        self.outputConsole.printOutput(f"{len(self.plotPoints.points.x)} data points")
+
+        if type(plotData) == PlotPoints:
+            self.plotPoints = plotData
+            self.outputConsole.printOutput(
+                f"{len(self.plotPoints.points.x)} data points"
+            )
+
+        if type(plotData) == PlotHorizo:
+            self.plotHorizo = plotData
+            self.outputConsole.printOutput(f"{len(self.plotHorizo.names)} functions")
+
         self.canvasPlot.update_plot(
             self.plotPoints,
+            self.plotHorizo,
             self.mplSettingsLayout,
             self.mplPlotSettingsLayout,
         )

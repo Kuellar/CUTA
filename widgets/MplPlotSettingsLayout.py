@@ -17,7 +17,7 @@ class MplPlotSettingsLayout(QFormLayout):
         )
         self.plotColorMpl.currentTextChanged.connect(
             lambda: mlpCanvas.update_plot(
-                window.xdata, window.ydata, window.zdata, self.globalSettings, self
+                window.plotPoints, window.plotHorizo, self.globalSettings, self
             )
         )
         self.addRow("Plot Color:", self.plotColorMpl)
@@ -27,7 +27,7 @@ class MplPlotSettingsLayout(QFormLayout):
         self.plotLineMpl.addItems(["-", "--", "-.", ":"])
         self.plotLineMpl.currentTextChanged.connect(
             lambda: mlpCanvas.update_plot(
-                window.xdata, window.ydata, window.zdata, self.globalSettings, self
+                window.plotPoints, window.plotHorizo, self.globalSettings, self
             )
         )
         self.addRow("Line Style:", self.plotLineMpl)
@@ -37,7 +37,7 @@ class MplPlotSettingsLayout(QFormLayout):
         self.plotMarkerMpl.addItems(["", ".", "o", "s", "p", "*", "x", "|"])
         self.plotMarkerMpl.currentTextChanged.connect(
             lambda: mlpCanvas.update_plot(
-                window.xdata, window.ydata, window.zdata, self.globalSettings, self
+                window.plotPoints, window.plotHorizo, self.globalSettings, self
             )
         )
         self.addRow("Marker:", self.plotMarkerMpl)
@@ -49,7 +49,7 @@ class MplPlotSettingsLayout(QFormLayout):
         )
         self.plotMarkerColorMpl.currentTextChanged.connect(
             lambda: mlpCanvas.update_plot(
-                window.xdata, window.ydata, window.zdata, self.globalSettings, self
+                window.plotPoints, window.plotHorizo, self.globalSettings, self
             )
         )
         self.addRow("Marker Color:", self.plotMarkerColorMpl)
@@ -58,7 +58,7 @@ class MplPlotSettingsLayout(QFormLayout):
         self.showErrorMpl = QCheckBox()
         self.showErrorMpl.stateChanged.connect(
             lambda: mlpCanvas.update_plot(
-                window.xdata, window.ydata, window.zdata, self.globalSettings, self
+                window.plotPoints, window.plotHorizo, self.globalSettings, self
             )
         )
         self.addRow("Show Error:", self.showErrorMpl)
@@ -70,7 +70,7 @@ class MplPlotSettingsLayout(QFormLayout):
         )
         self.errorColorMpl.currentTextChanged.connect(
             lambda: mlpCanvas.update_plot(
-                window.xdata, window.ydata, window.zdata, self.globalSettings, self
+                window.plotPoints, window.plotHorizo, self.globalSettings, self
             )
         )
         self.addRow("Error Color:", self.errorColorMpl)
