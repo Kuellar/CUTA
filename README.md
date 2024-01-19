@@ -34,6 +34,7 @@ git pull
 ## Links
 * [Matplotlib](https://matplotlib.org/)
 * [Python Qt](https://www.qt.io/qt-for-python)
+* [Superqt](https://pyapp-kit.github.io/superqt/)
 
 ## Contributing
 
