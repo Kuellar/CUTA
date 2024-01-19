@@ -8,3 +8,6 @@ class PlotHorizo:
         self.linestyles = "--"
         self.colors = "blue"
         self.width = 1
+
+    def set_colors(self, color: str) -> None:
+        self.colors = color

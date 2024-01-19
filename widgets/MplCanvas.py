@@ -10,8 +10,17 @@ class MplCanvas(FigureCanvasQTAgg):
         self.parent = window
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
+
+        # Data
         self.pointPlot = None
         self.horizoPlot = None
+
+        # Settings
+        self.globalSettings = None
+        self.plotSettings = None
+        self.verticalSettings = None
+
+        #  Flags
         self.mousePressed = False
         self.zoomInit = None
         self.zoomRectangle = None
@@ -192,41 +201,78 @@ class MplCanvas(FigureCanvasQTAgg):
                 [(1 + self.horizoPlot.z) * elem for elem in self.horizoPlot.x]
             ):
                 if x > self.pointPlot.x_limit[0] and x < self.pointPlot.x_limit[1]:
-                    last_text = self.axes.text(x, base_pos, self.horizoPlot.names[name_i])
+                    last_text = self.axes.text(
+                        x, base_pos, self.horizoPlot.names[name_i]
+                    )
                     self.draw()
 
                     # Check if collide with other text
-                    last_text_bbox =  self.axes.transData.inverted().transform_bbox(last_text.get_window_extent())
+                    last_text_bbox = self.axes.transData.inverted().transform_bbox(
+                        last_text.get_window_extent()
+                    )
                     bbox = None
 
                     for text in self.axes.texts[:-1]:
-                        bbox = self.axes.transData.inverted().transform_bbox(text.get_window_extent())
-                        if last_text_bbox.x0 >= bbox.x0 and last_text_bbox.x0 <= bbox.x1 and last_text_bbox.y0 == bbox.y0:
-                            last_text.set_position((x,last_text.get_position()[1]+bbox.y1-bbox.y0))
+                        bbox = self.axes.transData.inverted().transform_bbox(
+                            text.get_window_extent()
+                        )
+                        if (
+                            last_text_bbox.x0 >= bbox.x0
+                            and last_text_bbox.x0 <= bbox.x1
+                            and last_text_bbox.y0 == bbox.y0
+                        ):
+                            last_text.set_position(
+                                (x, last_text.get_position()[1] + bbox.y1 - bbox.y0)
+                            )
                             self.draw()
-                            last_text_bbox =  self.axes.transData.inverted().transform_bbox(last_text.get_window_extent())
-                        elif last_text_bbox.x1 >= bbox.x0 and last_text_bbox.x1 <= bbox.x1 and last_text_bbox.y0 == bbox.y0:
-                            last_text.set_position((x,last_text.get_position()[1]+bbox.y1-bbox.y0))
+                            last_text_bbox = (
+                                self.axes.transData.inverted().transform_bbox(
+                                    last_text.get_window_extent()
+                                )
+                            )
+                        elif (
+                            last_text_bbox.x1 >= bbox.x0
+                            and last_text_bbox.x1 <= bbox.x1
+                            and last_text_bbox.y0 == bbox.y0
+                        ):
+                            last_text.set_position(
+                                (x, last_text.get_position()[1] + bbox.y1 - bbox.y0)
+                            )
                             self.draw()
-                            last_text_bbox = self.axes.transData.inverted().transform_bbox(last_text.get_window_extent())
-
+                            last_text_bbox = (
+                                self.axes.transData.inverted().transform_bbox(
+                                    last_text.get_window_extent()
+                                )
+                            )
 
     def update_plot(
         self,
-        plotPoints: PlotPoints,
-        plotHorizo: PlotHorizo,
-        globalSettings,
-        specificSettings,
+        plotPoints: PlotPoints = None,
+        plotHorizo: PlotHorizo = None,
+        globalSettings=None,
+        specificSettings=None,
+        verticalSettings=None,
     ):
-        self.pointPlot = plotPoints
-        self.horizoPlot = plotHorizo
+        # Data
+        if plotPoints:
+            self.pointPlot = plotPoints
+        if plotHorizo:
+            self.horizoPlot = plotHorizo
 
-        self.parent.canvasPlotBottomSlider.setRange(plotPoints.x_range)
-        self.parent.canvasPlotLeftSlider.setRange(plotPoints.y_range)
+        # Settings
+        if globalSettings:
+            self.globalSettings = globalSettings
+        if specificSettings:
+            self.specificSettings = specificSettings
+        if verticalSettings:
+            verticalSettings = verticalSettings
+
+        self.parent.canvasPlotBottomSlider.setRange(self.pointPlot.x_range)
+        self.parent.canvasPlotLeftSlider.setRange(self.pointPlot.y_range)
 
         # New data is plotted
         self.axes.cla()
-        if specificSettings.showErrorMpl.isChecked():
+        if self.specificSettings.showErrorMpl.isChecked():
             self.axes.errorbar(
                 plotPoints.points.x,
                 plotPoints.points.y,
@@ -241,42 +287,41 @@ class MplCanvas(FigureCanvasQTAgg):
             )
         else:
             self.axes.plot(
-                plotPoints.points.x,
-                plotPoints.points.y,
-                color=specificSettings.plotColorMpl.currentText(),
-                linestyle=specificSettings.plotLineMpl.currentText(),
-                marker=specificSettings.plotMarkerMpl.currentText(),
-                markeredgecolor=specificSettings.plotMarkerColorMpl.currentText(),
-                markerfacecolor=specificSettings.plotMarkerColorMpl.currentText(),
-                drawstyle=specificSettings.drawStyleMpl.currentText(),
+                self.pointPlot.points.x,
+                self.pointPlot.points.y,
+                color=self.specificSettings.plotColorMpl.currentText(),
+                linestyle=self.specificSettings.plotLineMpl.currentText(),
+                marker=self.specificSettings.plotMarkerMpl.currentText(),
+                markeredgecolor=self.specificSettings.plotMarkerColorMpl.currentText(),
+                markerfacecolor=self.specificSettings.plotMarkerColorMpl.currentText(),
+                drawstyle=self.specificSettings.drawStyleMpl.currentText(),
             )
 
         # Check all matplotlib configurations
-        title = globalSettings.titleMpl.text()
+        title = self.globalSettings.titleMpl.text()
         self.axes.set_title(title)
-        xlabel = globalSettings.xlabelMpl.text()
+        xlabel = self.globalSettings.xlabelMpl.text()
         self.axes.set_xlabel(xlabel)
-        ylabel = globalSettings.ylabelMpl.text()
+        ylabel = self.globalSettings.ylabelMpl.text()
         self.axes.set_ylabel(ylabel)
-        self.axes.grid(globalSettings.showGridMpl.isChecked())
-        self.axes.set_xscale(globalSettings.xscaleMpl.currentText())
-        self.axes.set_yscale(globalSettings.yscaleMpl.currentText())
+        self.axes.grid(self.globalSettings.showGridMpl.isChecked())
+        self.axes.set_xscale(self.globalSettings.xscaleMpl.currentText())
+        self.axes.set_yscale(self.globalSettings.yscaleMpl.currentText())
 
         # Check horizo
         if plotHorizo:
             self.axes.vlines(
                 x=[(1 + plotHorizo.z) * elem for elem in plotHorizo.x],
-                ymin=plotPoints.y_range[0],
-                ymax=plotPoints.y_range[1],
-                linestyles=plotHorizo.linestyles,
-                colors=plotHorizo.colors,
-                linewidth=plotHorizo.width,
+                ymin=self.pointPlot.y_range[0],
+                ymax=self.pointPlot.y_range[1],
+                linestyles=self.horizoPlot.linestyles,
+                colors=self.horizoPlot.colors,
+                linewidth=self.horizoPlot.width,
             )
 
-
         # Fix lim
-        self.change_xlim(plotPoints.x_limit)
-        self.change_ylim(plotPoints.y_limit)
+        self.change_xlim(self.pointPlot.x_limit)
+        self.change_ylim(self.pointPlot.y_limit)
         self.draw_texts()
 
         # Current size in inches...

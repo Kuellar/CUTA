@@ -23,6 +23,7 @@ from widgets.FilesMenu import FilesMenu
 from widgets.MplCanvas import MplCanvas
 from widgets.CollapsibleBox import CollapsibleBox
 from widgets.SliderZoom import SliderZoom
+from widgets.MplPlotVertical import MplPlotVertical
 from utils import open_data
 from data import Points, PlotPoints, PlotHorizo
 
@@ -36,7 +37,7 @@ class Window(QMainWindow):
         self.lastDirOpen = None
         self.lastFileOpen = None
         self.plotPoints = None
-        self.plotHorizo = None
+        self.plotHorizo = PlotHorizo(names=[], x=[])
 
         self._createActions()
         self._createMenuBar()
@@ -102,6 +103,9 @@ class Window(QMainWindow):
         )
         self.controlsLayout.addWidget(self.mplPlotSettingsBox)
         self.mplPlotSettingsBox.setContentLayout(self.mplPlotSettingsLayout)
+        # Plot Vertical Lines
+        self.mplPlotVertical = MplPlotVertical(self, self.canvasPlot)
+        self.controlsLayout.addWidget(self.mplPlotVertical)
 
         self.controlsLayout.addStretch()
 
