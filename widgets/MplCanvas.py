@@ -50,6 +50,7 @@ class MplCanvas(FigureCanvasQTAgg):
             if event.xdata and event.ydata:
                 self.mousePressed = True
                 self.moveInit = [event.xdata, event.ydata]
+                self.remove_texts()
 
     def button_release_event(self, event):
         app = QApplication.activeWindow()
@@ -86,6 +87,7 @@ class MplCanvas(FigureCanvasQTAgg):
                 self.zoomRectangle.remove()
                 self.zoomRectangle = None
                 self.zoomInit = None
+                self.remove_texts()
                 self.draw_texts()
 
         if (
@@ -93,6 +95,7 @@ class MplCanvas(FigureCanvasQTAgg):
             and self.parent.buttonSettings.active == "move"
         ):
             self.mousePressed = False
+            self.draw_texts()
 
     def on_move(self, event):
         app = QApplication.activeWindow()
@@ -147,7 +150,6 @@ class MplCanvas(FigureCanvasQTAgg):
                     app.canvasPlotLeftSlider.setValue(new_ylimit)
 
                 self.moveInit = [event.xdata, event.ydata]
-                self.draw_texts()
 
     def update_plot_settings(self):
         app = QApplication.activeWindow()
@@ -181,25 +183,29 @@ class MplCanvas(FigureCanvasQTAgg):
             self.axes.set_ylim(app.plotPoints.y_limit)
             self.draw()
 
-    def draw_texts(self):
+    def remove_texts(self):
         for text in self.axes.texts:
             text.remove()
-        if self.horizoPlot:
+
+    def draw_texts(self):
+        app = QApplication.activeWindow()
+
+        if app.plotHorizo:
             base_pos = (
                 self.axes.get_ylim()[0]
                 + (self.axes.get_ylim()[1] - self.axes.get_ylim()[0])
-                * self.horizoPlot.names_y
+                * app.plotHorizo.names_y
             )
             last_text = None
             for name_i, x in enumerate(
-                [(1 + self.horizoPlot.z) * elem for elem in self.horizoPlot.x]
+                [(1 + app.plotHorizo.z) * elem for elem in app.plotHorizo.x]
             ):
-                if x > self.pointPlot.x_limit[0] and x < self.pointPlot.x_limit[1]:
+                if x > app.plotPoints.x_limit[0] and x < app.plotPoints.x_limit[1]:
                     last_text = self.axes.text(
                         x,
                         base_pos,
-                        self.horizoPlot.names[name_i],
-                        color=self.horizoPlot.label_colors,
+                        app.plotHorizo.names[name_i],
+                        color=app.plotHorizo.label_colors,
                     )
                     self.draw()
 
@@ -300,6 +306,7 @@ class MplCanvas(FigureCanvasQTAgg):
         # Fix lim
         self.update_xlim()
         self.update_ylim()
+        self.remove_texts()
         self.draw_texts()
 
     def init_plot(self, plotPoints):

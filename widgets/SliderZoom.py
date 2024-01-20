@@ -35,7 +35,9 @@ class SliderZoom(QWidget):
         secondInputFont.setPointSize(8)
         self.secondInput.setFont(secondInputFont)
 
+        self.slider.sliderPressed.connect(lambda: self.sliderPressed())
         self.slider.sliderMoved.connect(lambda x: self.sliderMoved(x))
+        self.slider.sliderReleased.connect(lambda: self.sliderReleased())
         self.firstInput.textEdited.connect(lambda x: self.firstInputChanged(x))
         self.firstInput.editingFinished.connect(
             lambda: self.firstInputEditingFinished()
@@ -84,7 +86,6 @@ class SliderZoom(QWidget):
             self.slider.setValue((range[0], range[1]))
             self.secondInput.setText("{:.4f}".format(range[0]))
 
-
     def setValue(self, value):
         if self.horizontal:
             self.firstInput.setText("{:.4f}".format(value[0]))
@@ -95,6 +96,12 @@ class SliderZoom(QWidget):
             self.slider.setValue((value[0], value[1]))
             self.secondInput.setText("{:.4f}".format(value[0]))
 
+    def sliderPressed(self):
+        app = QApplication.activeWindow()
+        if not app:
+            return
+        app.canvasPlot.remove_texts()
+
     def sliderMoved(self, range):
         app = QApplication.activeWindow()
         if not app:
@@ -104,13 +111,17 @@ class SliderZoom(QWidget):
             self.secondInput.setText("{:.4f}".format(range[1]))
             app.plotPoints.set_x_limit(range)
             app.canvasPlot.update_xlim()
-            app.canvasPlot.draw_texts()
         else:
             self.firstInput.setText("{:.4f}".format(range[1]))
             self.secondInput.setText("{:.4f}".format(range[0]))
             app.plotPoints.set_y_limit(range)
             app.canvasPlot.update_ylim()
-            app.canvasPlot.draw_texts()
+
+    def sliderReleased(self):
+        app = QApplication.activeWindow()
+        if not app:
+            return
+        app.canvasPlot.draw_texts()
 
     def firstInputChanged(self, value):
         app = QApplication.activeWindow()
