@@ -7,7 +7,14 @@ class PlotHorizo:
         self.z = z
         self.linestyles = "--"
         self.colors = "blue"
+        self.label_colors = "black"
         self.width = 1
 
     def set_colors(self, color: str) -> None:
         self.colors = color
+
+    def set_label_colors(self, color: str) -> None:
+        self.label_colors = color
+
+    def set_z(self, new_z: float) -> None:
+        self.z = new_z

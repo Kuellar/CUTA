@@ -1,19 +1,18 @@
 import qtawesome as qta
 from .CustomButton import CustomButton
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QStyleOption, QStyle
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QStyleOption, QStyle, QApplication
 from PyQt6.QtGui import QPainter, QIcon
 from PyQt6.QtCore import Qt, QSize
 
 
 class ButtonsSettings(QWidget):
-    def __init__(self, win):
+    def __init__(self):
         super(QWidget, self).__init__()
         self.IconSize = QSize(48, 48)
         self.buttonsSettingsLayout = QHBoxLayout()
         self.buttonsSettingsLayout.setContentsMargins(0, 0, 0, 0)
         self.buttonsSettingsLayout.setSpacing(0)
         self.setLayout(self.buttonsSettingsLayout)
-        self.win = win
 
         # Permissions: "move", "zoom"
         self.active = None
@@ -50,19 +49,20 @@ class ButtonsSettings(QWidget):
         self.buttonsSettingsLayout.addStretch()
 
     def set_square(self):
+        app = QApplication.activeWindow()
         self.moveButton.set_active(False)
         self.zoomButton.set_active(False)
         self.active = None
 
-        oldHeight = self.win.canvasPlotGridHeight
-        newHeight = self.win.canvasPlotGrid.frameGeometry().height()
+        oldHeight = app.canvasPlotGridHeight
+        newHeight = app.canvasPlotGrid.frameGeometry().height()
         newWidthAll = (
-            self.win.canvasWorkspaceLayoutSplitter.sizes()[0]
-            + self.win.canvasWorkspaceLayoutSplitter.sizes()[1]
+            app.canvasWorkspaceLayoutSplitter.sizes()[0]
+            + app.canvasWorkspaceLayoutSplitter.sizes()[1]
         )
-        newPlotWidth = self.win.ratioPlotSettings[0] * newHeight / oldHeight
+        newPlotWidth = app.ratioPlotSettings[0] * newHeight / oldHeight
         newSettWidth = newWidthAll - newPlotWidth
-        self.win.canvasWorkspaceLayoutSplitter.setSizes(
+        app.canvasWorkspaceLayoutSplitter.setSizes(
             [int(newPlotWidth), int(newSettWidth)]
         )
 
@@ -89,13 +89,16 @@ class ButtonsSettings(QWidget):
         self.zoomButton.set_active(False)
         self.active = None
 
-        x_original = self.win.canvasPlotBottomSlider.getRange()
-        y_original = self.win.canvasPlotLeftSlider.getRange()
-        self.win.canvasPlotBottomSlider.setValue(x_original)
-        self.win.canvasPlotLeftSlider.setValue(y_original)
-        self.win.canvasPlot.change_xlim(x_original)
-        self.win.canvasPlot.change_ylim(y_original)
-        self.win.canvasPlot.draw_texts()
+        app = QApplication.activeWindow()
+        x_original = app.plotPoints.x_range
+        y_original = app.plotPoints.y_range
+        app.plotPoints.set_x_limit(x_original)
+        app.plotPoints.set_y_limit(y_original)
+        app.canvasPlotBottomSlider.setValue(x_original)
+        app.canvasPlotLeftSlider.setValue(y_original)
+        app.canvasPlot.draw_texts()
+        app.canvasPlot.update_xlim()
+        app.canvasPlot.update_ylim()
 
     def take_screenshot(self):
         self.moveButton.set_active(False)

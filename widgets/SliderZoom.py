@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QStyleOption,
     QStyle,
+    QApplication,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPainter
@@ -14,11 +15,9 @@ from .RotableContainer import RotatableContainer
 
 
 class SliderZoom(QWidget):
-    def __init__(self, horizontal=True, mplCanvas=None):
+    def __init__(self, horizontal=True):
         super(QWidget, self).__init__()
-        self.range = None
         self.horizontal = horizontal
-        self.mplCanvas = mplCanvas
 
         self.layoutSlider = QHBoxLayout() if horizontal else QVBoxLayout()
         self.setLayout(self.layoutSlider)
@@ -74,7 +73,6 @@ class SliderZoom(QWidget):
             self.layoutSlider.addWidget(self.secondInput, stretch=100)
 
     def setRange(self, range):
-        self.range = range
         if self.horizontal:
             self.firstInput.setText("{:.4f}".format(range[0]))
             self.slider.setRange(range[0], range[1])
@@ -86,8 +84,6 @@ class SliderZoom(QWidget):
             self.slider.setValue((range[0], range[1]))
             self.secondInput.setText("{:.4f}".format(range[0]))
 
-    def getRange(self):
-        return self.range
 
     def setValue(self, value):
         if self.horizontal:
@@ -100,18 +96,26 @@ class SliderZoom(QWidget):
             self.secondInput.setText("{:.4f}".format(value[0]))
 
     def sliderMoved(self, range):
+        app = QApplication.activeWindow()
+        if not app:
+            return
         if self.horizontal:
             self.firstInput.setText("{:.4f}".format(range[0]))
             self.secondInput.setText("{:.4f}".format(range[1]))
-            self.mplCanvas.change_xlim(range)
-            self.mplCanvas.draw_texts()
+            app.plotPoints.set_x_limit(range)
+            app.canvasPlot.update_xlim()
+            app.canvasPlot.draw_texts()
         else:
             self.firstInput.setText("{:.4f}".format(range[1]))
             self.secondInput.setText("{:.4f}".format(range[0]))
-            self.mplCanvas.change_ylim(range)
-            self.mplCanvas.draw_texts()
+            app.plotPoints.set_y_limit(range)
+            app.canvasPlot.update_ylim()
+            app.canvasPlot.draw_texts()
 
     def firstInputChanged(self, value):
+        app = QApplication.activeWindow()
+        if not app:
+            return
         if not value or value == "-":
             return
         lastChar = value[len(value) - 1]
@@ -120,86 +124,95 @@ class SliderZoom(QWidget):
         ) and value.count(".") < 2:
             if lastChar != ".":
                 if self.horizontal:
-                    if float(value) >= self.mplCanvas.pointPlot.x_limit[0]:
+                    if float(value) >= app.plotPoints.x_range[0]:
                         if float(value) <= float(self.secondInput.text()):
-                            self.mplCanvas.change_xlim(
-                                [float(value), self.mplCanvas.axes.get_xlim()[1]]
+                            app.plotPoints.set_x_limit(
+                                [float(value), app.canvasPlot.axes.get_xlim()[1]]
                             )
+                            app.canvasPlot.update_xlim()
                             self.slider.setValue(
-                                (float(value), self.mplCanvas.axes.get_xlim()[1])
+                                (float(value), app.canvasPlot.axes.get_xlim()[1])
                             )
                         else:
-                            self.mplCanvas.change_xlim(
+                            app.plotPoints.set_x_limit(
                                 [
                                     float(self.secondInput.text()) - 0.001,
-                                    self.mplCanvas.axes.get_xlim()[1],
+                                    app.canvasPlot.axes.get_xlim()[1],
                                 ]
                             )
+                            app.canvasPlot.update_xlim()
                             self.slider.setValue(
                                 (
                                     float(self.secondInput.text()) - 0.001,
-                                    self.mplCanvas.axes.get_xlim()[1],
+                                    app.canvasPlot.axes.get_xlim()[1],
                                 )
                             )
                     else:
-                        self.mplCanvas.change_xlim(
+                        app.plotPoints.set_x_limit(
                             [
-                                self.mplCanvas.pointPlot.x_limit[0],
-                                self.mplCanvas.axes.get_xlim()[1],
+                                app.plotPoints.x_range[0],
+                                app.canvasPlot.axes.get_xlim()[1],
                             ]
                         )
+                        app.canvasPlot.update_xlim()
                         self.slider.setValue(
                             (
-                                self.mplCanvas.pointPlot.x_limit[0],
-                                self.mplCanvas.axes.get_xlim()[1],
+                                app.plotPoints.x_range[0],
+                                app.canvasPlot.axes.get_xlim()[1],
                             )
                         )
                 else:
-                    if float(value) <= self.mplCanvas.pointPlot.y_limit[1]:
+                    if float(value) <= app.plotPoints.y_range[1]:
                         if float(value) >= float(self.secondInput.text()):
-                            self.mplCanvas.change_ylim(
-                                [self.mplCanvas.axes.get_ylim()[0], float(value)]
+                            app.plotPoints.set_y_limit(
+                                [app.canvasPlot.axes.get_ylim()[0], float(value)]
                             )
+                            app.canvasPlot.update_ylim()
                             self.slider.setValue(
-                                (self.mplCanvas.axes.get_ylim()[0], float(value))
+                                (app.canvasPlot.axes.get_ylim()[0], float(value))
                             )
                         else:
-                            self.mplCanvas.change_ylim(
+                            app.plotPoints.set_y_limit(
                                 [
-                                    self.mplCanvas.axes.get_ylim()[0],
+                                    app.canvasPlot.axes.get_ylim()[0],
                                     float(self.secondInput.text()) + 0.001,
                                 ]
                             )
+                            app.canvasPlot.update_ylim()
                             self.slider.setValue(
                                 (
-                                    self.mplCanvas.axes.get_ylim()[0],
+                                    app.canvasPlot.axes.get_ylim()[0],
                                     float(self.secondInput.text()) + 0.001,
                                 )
                             )
                     else:
-                        self.mplCanvas.change_ylim(
+                        app.plotPoints.set_y_limit(
                             [
-                                self.mplCanvas.axes.get_ylim()[0],
-                                self.mplCanvas.pointPlot.y_limit[1],
+                                app.canvasPlot.axes.get_ylim()[0],
+                                app.plotPoints.y_range[1],
                             ]
                         )
+                        app.canvasPlot.update_ylim()
                         self.slider.setValue(
                             (
-                                self.mplCanvas.axes.get_ylim()[0],
-                                self.mplCanvas.pointPlot.y_limit[1],
+                                app.canvasPlot.axes.get_ylim()[0],
+                                app.plotPoints.y_range[1],
                             )
                         )
         else:
             self.firstInput.setText(value[: len(value) - 1])
 
     def firstInputEditingFinished(self):
+        app = QApplication.activeWindow()
+        if not app:
+            return
         if self.horizontal:
             if (
                 self.firstInput.text() == ""
                 or self.firstInput.text() == "-"
-                or float(self.firstInput.text()) < self.mplCanvas.pointPlot.x_limit[0]
+                or float(self.firstInput.text()) < app.plotPoints.x_limit[0]
             ):
-                self.firstInput.setText("{:.4f}".format(self.mplCanvas.pointPlot.x_limit[0]))
+                self.firstInput.setText("{:.4f}".format(app.plotPoints.x_limit[0]))
             elif float(self.firstInput.text()) > float(self.secondInput.text()):
                 self.firstInput.setText(
                     "{:.4f}".format(float(self.secondInput.text()) - 0.001)
@@ -208,15 +221,18 @@ class SliderZoom(QWidget):
             if (
                 self.firstInput.text() == ""
                 or self.firstInput.text() == "-"
-                or float(self.firstInput.text()) > self.mplCanvas.pointPlot.y_limit[1]
+                or float(self.firstInput.text()) > app.plotPoints.y_limit[1]
             ):
-                self.firstInput.setText("{:.4f}".format(self.mplCanvas.pointPlot.y_limit[1]))
+                self.firstInput.setText("{:.4f}".format(app.plotPoints.y_limit[1]))
             elif float(self.firstInput.text()) < float(self.secondInput.text()):
                 self.firstInput.setText(
                     "{:.4f}".format(float(self.secondInput.text()) + 0.001)
                 )
 
     def secondInputChanged(self, value):
+        app = QApplication.activeWindow()
+        if not app:
+            return
         if not value or value == "-":
             return
         lastChar = value[len(value) - 1]
@@ -225,86 +241,95 @@ class SliderZoom(QWidget):
         ) and value.count(".") < 2:
             if lastChar != ".":
                 if self.horizontal:
-                    if float(value) <= self.mplCanvas.pointPlot.x_limit[1]:
+                    if float(value) <= app.plotPoints.x_range[1]:
                         if float(value) >= float(self.firstInput.text()):
-                            self.mplCanvas.change_xlim(
-                                [self.mplCanvas.axes.get_xlim()[0], float(value)]
+                            app.plotPoints.set_x_limit(
+                                [app.canvasPlot.axes.get_xlim()[0], float(value)]
                             )
+                            app.canvasPlot.update_xlim()
                             self.slider.setValue(
-                                (self.mplCanvas.axes.get_xlim()[0], float(value))
+                                (app.canvasPlot.axes.get_xlim()[0], float(value))
                             )
                         else:
-                            self.mplCanvas.change_xlim(
+                            app.plotPoints.set_x_limit(
                                 [
-                                    self.mplCanvas.axes.get_xlim()[0],
+                                    app.canvasPlot.axes.get_xlim()[0],
                                     float(self.firstInput.text()) + 0.001,
                                 ]
                             )
+                            app.canvasPlot.update_xlim()
                             self.slider.setValue(
                                 (
-                                    self.mplCanvas.axes.get_xlim()[0],
+                                    app.canvasPlot.axes.get_xlim()[0],
                                     float(self.firstInput.text()) + 0.001,
                                 )
                             )
                     else:
-                        self.mplCanvas.change_xlim(
+                        app.plotPoints.set_x_limit(
                             [
-                                self.mplCanvas.axes.get_xlim()[0],
-                                self.mplCanvas.pointPlot.x_limit[1],
+                                app.canvasPlot.axes.get_xlim()[0],
+                                app.plotPoints.x_range[1],
                             ]
                         )
+                        app.canvasPlot.update_xlim()
                         self.slider.setValue(
                             (
-                                self.mplCanvas.axes.get_xlim()[0],
-                                self.mplCanvas.pointPlot.x_limit[1],
+                                app.canvasPlot.axes.get_xlim()[0],
+                                app.plotPoints.x_range[1],
                             )
                         )
                 else:
-                    if float(value) >= self.mplCanvas.pointPlot.y_limit[0]:
+                    if float(value) >= app.plotPoints.y_range[0]:
                         if float(value) <= float(self.firstInput.text()):
-                            self.mplCanvas.change_ylim(
-                                [float(value), self.mplCanvas.axes.get_ylim()[1]]
+                            app.plotPoints.set_y_limit(
+                                [float(value), app.canvasPlot.axes.get_ylim()[1]]
                             )
+                            app.canvasPlot.update_ylim()
                             self.slider.setValue(
-                                (float(value), self.mplCanvas.axes.get_ylim()[1])
+                                (float(value), app.canvasPlot.axes.get_ylim()[1])
                             )
                         else:
-                            self.mplCanvas.change_ylim(
+                            app.plotPoints.set_y_limit(
                                 [
                                     float(self.firstInput.text()) - 0.001,
-                                    self.mplCanvas.axes.get_ylim()[1],
+                                    app.canvasPlot.axes.get_ylim()[1],
                                 ]
                             )
+                            app.canvasPlot.update_ylim()
                             self.slider.setValue(
                                 (
                                     float(self.firstInput.text()) - 0.001,
-                                    self.mplCanvas.axes.get_ylim()[1],
+                                    app.canvasPlot.axes.get_ylim()[1],
                                 )
                             )
                     else:
-                        self.mplCanvas.change_ylim(
+                        app.plotPoints.set_y_limit(
                             [
-                                self.mplCanvas.pointPlot.y_limit[0],
-                                self.mplCanvas.axes.get_ylim()[1],
+                                app.plotPoints.y_range[0],
+                                app.canvasPlot.axes.get_ylim()[1],
                             ]
                         )
+                        app.canvasPlot.update_ylim()
                         self.slider.setValue(
                             (
-                                self.mplCanvas.pointPlot.y_limit[0],
-                                self.mplCanvas.axes.get_ylim()[1],
+                                app.plotPoints.y_range[0],
+                                app.canvasPlot.axes.get_ylim()[1],
                             )
                         )
         else:
             self.secondInput.setText(value[: len(value) - 1])
 
     def secondInputEditingFinished(self):
+        app = QApplication.activeWindow()
+        if not app:
+            return
         if self.horizontal:
             if (
                 self.secondInput.text() == ""
                 or self.secondInput.text() == "-"
-                or float(self.secondInput.text()) > self.mplCanvas.pointPlot.x_limit[1]
+                or float(self.secondInput.text()) > app.plotPoints.x_limit[1]
             ):
-                self.secondInput.setText("{:.4f}".format(self.mplCanvas.pointPlot.x_limit[1]))
+                self.secondInput.setText("{:.4f}".format(app.plotPoints.x_limit[1]))
             elif float(self.secondInput.text()) < float(self.firstInput.text()):
                 self.secondInput.setText(
                     "{:.4f}".format(float(self.firstInput.text()) + 0.001)
@@ -313,9 +338,9 @@ class SliderZoom(QWidget):
             if (
                 self.secondInput.text() == ""
                 or self.secondInput.text() == "-"
-                or float(self.secondInput.text()) < self.mplCanvas.pointPlot.y_limit[0]
+                or float(self.secondInput.text()) < app.plotPoints.y_limit[0]
             ):
-                self.secondInput.setText("{:.4f}".format(self.mplCanvas.pointPlot.y_limit[0]))
+                self.secondInput.setText("{:.4f}".format(app.plotPoints.y_limit[0]))
             elif float(self.secondInput.text()) > float(self.firstInput.text()):
                 self.secondInput.setText(
                     "{:.4f}".format(float(self.firstInput.text()) - 0.001)

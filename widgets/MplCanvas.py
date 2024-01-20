@@ -2,7 +2,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import MouseButton
 from matplotlib.patches import Rectangle
-from data import PlotPoints, PlotHorizo
+from PyQt6.QtWidgets import QApplication
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -52,6 +52,7 @@ class MplCanvas(FigureCanvasQTAgg):
                 self.moveInit = [event.xdata, event.ydata]
 
     def button_release_event(self, event):
+        app = QApplication.activeWindow()
         if (
             event.button is MouseButton.LEFT
             and self.parent.buttonSettings.active == "zoom"
@@ -73,11 +74,13 @@ class MplCanvas(FigureCanvasQTAgg):
                         max(self.zoomInit[1], event.ydata),
                     ]
                     # Set limits in canvas
-                    self.change_xlim(valueX)
-                    self.change_ylim(valueY)
+                    app.plotPoints.set_x_limit(valueX)
+                    self.update_xlim()
+                    app.plotPoints.set_y_limit(valueY)
+                    self.update_ylim()
                     # Set limits slider
-                    self.parent.canvasPlotBottomSlider.setValue(valueX)
-                    self.parent.canvasPlotLeftSlider.setValue(valueY)
+                    app.canvasPlotBottomSlider.setValue(valueX)
+                    app.canvasPlotLeftSlider.setValue(valueY)
 
                 # Clean
                 self.zoomRectangle.remove()
@@ -92,6 +95,7 @@ class MplCanvas(FigureCanvasQTAgg):
             self.mousePressed = False
 
     def on_move(self, event):
+        app = QApplication.activeWindow()
         if (
             event.inaxes
             and self.fig.canvas.mousePressed
@@ -127,65 +131,55 @@ class MplCanvas(FigureCanvasQTAgg):
                     self.axes.get_ylim()[0] + y_moved,
                     self.axes.get_ylim()[1] + y_moved,
                 ]
-                x_original = self.parent.canvasPlotBottomSlider.getRange()
-                y_original = self.parent.canvasPlotLeftSlider.getRange()
+                x_original = app.plotPoints.x_range
+                y_original = app.plotPoints.y_range
 
                 if new_xlimit[0] > x_original[0] and new_xlimit[1] < x_original[1]:
-                    self.pointPlot.set_x_limit(new_xlimit)
-                    self.change_xlim(new_xlimit)
-                    # Set limits in canvas
-                    self.change_xlim(new_xlimit)
+                    app.plotPoints.set_x_limit(new_xlimit)
+                    self.update_xlim()
                     # Set limits slider
-                    self.parent.canvasPlotBottomSlider.setValue(new_xlimit)
+                    app.canvasPlotBottomSlider.setValue(new_xlimit)
 
                 if new_ylimit[0] > y_original[0] and new_ylimit[1] < y_original[1]:
-                    self.pointPlot.set_y_limit(new_ylimit)
-                    self.change_ylim(new_ylimit)
-                    # Set limits in canvas
-                    self.change_ylim(new_ylimit)
+                    app.plotPoints.set_y_limit(new_ylimit)
+                    self.update_ylim()
                     # Set limits slider
-                    self.parent.canvasPlotLeftSlider.setValue(new_ylimit)
+                    app.canvasPlotLeftSlider.setValue(new_ylimit)
 
                 self.moveInit = [event.xdata, event.ydata]
                 self.draw_texts()
 
-    def change_title(self, new_title):
-        self.axes.set_title(new_title)
+    def update_plot_settings(self):
+        app = QApplication.activeWindow()
+        if not app:
+            return
+
+        self.axes.set_title(app.plot.title)
+        self.axes.set_xlabel(app.plot.xlabel)
+        self.axes.set_ylabel(app.plot.ylabel)
+        self.axes.set_xscale(app.plot.xscale)
+        self.axes.set_yscale(app.plot.yscale)
+        self.axes.grid(app.plot.show_grid)
+
         self.draw()
 
-    def change_xlabel(self, new_xlabel):
-        self.axes.set_xlabel(new_xlabel)
-        self.draw()
+    def update_xlim(self):
+        app = QApplication.activeWindow()
+        if not app:
+            return
 
-    def change_ylabel(self, new_ylabel):
-        self.axes.set_ylabel(new_ylabel)
-        self.draw()
-
-    def change_drawstyle(self, new_drawstyle):
-        self.axes.get_lines()[0].set_drawstyle(new_drawstyle)
-        self.draw()
-
-    def change_xlim(self, new_xlim):
-        if self.axes.get_xlim() is not new_xlim:
-            self.axes.set_xlim(new_xlim)
+        if self.axes.get_xlim() is not app.plotPoints.x_limit:
+            self.axes.set_xlim(app.plotPoints.x_limit)
             self.draw()
 
-    def change_ylim(self, new_ylim):
-        if self.axes.get_ylim() is not new_ylim:
-            self.axes.set_ylim(new_ylim)
+    def update_ylim(self):
+        app = QApplication.activeWindow()
+        if not app:
+            return
+
+        if self.axes.get_ylim() is not app.plotPoints.y_limit:
+            self.axes.set_ylim(app.plotPoints.y_limit)
             self.draw()
-
-    def change_xscale(self, new_xscale):
-        self.axes.set_xscale(new_xscale)
-        self.draw()
-
-    def change_yscale(self, new_yscale):
-        self.axes.set_yscale(new_yscale)
-        self.draw()
-
-    def show_grid(self, show=True):
-        self.axes.grid(show)
-        self.draw()
 
     def draw_texts(self):
         for text in self.axes.texts:
@@ -202,7 +196,10 @@ class MplCanvas(FigureCanvasQTAgg):
             ):
                 if x > self.pointPlot.x_limit[0] and x < self.pointPlot.x_limit[1]:
                     last_text = self.axes.text(
-                        x, base_pos, self.horizoPlot.names[name_i]
+                        x,
+                        base_pos,
+                        self.horizoPlot.names[name_i],
+                        color=self.horizoPlot.label_colors,
                     )
                     self.draw()
 
@@ -245,86 +242,74 @@ class MplCanvas(FigureCanvasQTAgg):
                                 )
                             )
 
-    def update_plot(
-        self,
-        plotPoints: PlotPoints = None,
-        plotHorizo: PlotHorizo = None,
-        globalSettings=None,
-        specificSettings=None,
-        verticalSettings=None,
-    ):
-        # Data
-        if plotPoints:
-            self.pointPlot = plotPoints
-        if plotHorizo:
-            self.horizoPlot = plotHorizo
+    def update_plot(self):
+        app = QApplication.activeWindow()
+        if not app:
+            return
 
-        # Settings
-        if globalSettings:
-            self.globalSettings = globalSettings
-        if specificSettings:
-            self.specificSettings = specificSettings
-        if verticalSettings:
-            verticalSettings = verticalSettings
-
-        self.parent.canvasPlotBottomSlider.setRange(self.pointPlot.x_range)
-        self.parent.canvasPlotLeftSlider.setRange(self.pointPlot.y_range)
+        self.parent.canvasPlotBottomSlider.setRange(app.plotPoints.x_range)
+        self.parent.canvasPlotLeftSlider.setRange(app.plotPoints.y_range)
 
         # New data is plotted
         self.axes.cla()
-        if self.specificSettings.showErrorMpl.isChecked():
+        if app.plotPoints.show_error:
             self.axes.errorbar(
-                plotPoints.points.x,
-                plotPoints.points.y,
-                yerr=plotPoints.points.error,
-                ecolor=specificSettings.errorColorMpl.currentText(),
-                color=specificSettings.plotColorMpl.currentText(),
-                linestyle=specificSettings.plotLineMpl.currentText(),
-                marker=specificSettings.plotMarkerMpl.currentText(),
-                markeredgecolor=specificSettings.plotMarkerColorMpl.currentText(),
-                markerfacecolor=specificSettings.plotMarkerColorMpl.currentText(),
-                drawstyle=specificSettings.drawStyleMpl.currentText(),
+                app.plotPoints.points.x,
+                app.plotPoints.points.y,
+                yerr=app.plotPoints.points.error,
+                ecolor=app.plotPoints.error_color,
+                color=app.plotPoints.color,
+                linestyle=app.plotPoints.plot_line,
+                marker=app.plotPoints.marker,
+                markeredgecolor=app.plotPoints.marker_color,
+                markerfacecolor=app.plotPoints.marker_color,
+                drawstyle=app.plotPoints.drawstyle,
             )
         else:
             self.axes.plot(
-                self.pointPlot.points.x,
-                self.pointPlot.points.y,
-                color=self.specificSettings.plotColorMpl.currentText(),
-                linestyle=self.specificSettings.plotLineMpl.currentText(),
-                marker=self.specificSettings.plotMarkerMpl.currentText(),
-                markeredgecolor=self.specificSettings.plotMarkerColorMpl.currentText(),
-                markerfacecolor=self.specificSettings.plotMarkerColorMpl.currentText(),
-                drawstyle=self.specificSettings.drawStyleMpl.currentText(),
+                app.plotPoints.points.x,
+                app.plotPoints.points.y,
+                color=app.plotPoints.color,
+                linestyle=app.plotPoints.plot_line,
+                marker=app.plotPoints.marker,
+                markeredgecolor=app.plotPoints.marker_color,
+                markerfacecolor=app.plotPoints.marker_color,
+                drawstyle=app.plotPoints.drawstyle,
             )
 
         # Check all matplotlib configurations
-        title = self.globalSettings.titleMpl.text()
-        self.axes.set_title(title)
-        xlabel = self.globalSettings.xlabelMpl.text()
-        self.axes.set_xlabel(xlabel)
-        ylabel = self.globalSettings.ylabelMpl.text()
-        self.axes.set_ylabel(ylabel)
-        self.axes.grid(self.globalSettings.showGridMpl.isChecked())
-        self.axes.set_xscale(self.globalSettings.xscaleMpl.currentText())
-        self.axes.set_yscale(self.globalSettings.yscaleMpl.currentText())
+        self.axes.set_title(app.plot.title)
+        self.axes.set_title(app.plot.title)
+        self.axes.set_xlabel(app.plot.xlabel)
+        self.axes.set_ylabel(app.plot.ylabel)
+        self.axes.set_xscale(app.plot.xscale)
+        self.axes.set_yscale(app.plot.yscale)
+        self.axes.grid(app.plot.show_grid)
 
         # Check horizo
-        if plotHorizo:
+        if app.plotHorizo:
             self.axes.vlines(
-                x=[(1 + plotHorizo.z) * elem for elem in plotHorizo.x],
-                ymin=self.pointPlot.y_range[0],
-                ymax=self.pointPlot.y_range[1],
-                linestyles=self.horizoPlot.linestyles,
-                colors=self.horizoPlot.colors,
-                linewidth=self.horizoPlot.width,
+                x=[(1 + app.plotHorizo.z) * elem for elem in app.plotHorizo.x],
+                ymin=app.plotPoints.y_range[0],
+                ymax=app.plotPoints.y_range[1],
+                linestyles=app.plotHorizo.linestyles,
+                colors=app.plotHorizo.colors,
+                linewidth=app.plotHorizo.width,
             )
 
         # Fix lim
-        self.change_xlim(self.pointPlot.x_limit)
-        self.change_ylim(self.pointPlot.y_limit)
+        self.update_xlim()
+        self.update_ylim()
         self.draw_texts()
 
-        # Current size in inches...
-        # print(self.figure.get_size_inches()*self.figure.dpi)  # 10 and 8 hinches
-        # print(self.axes.get_window_extent().transformed(self.axes.get_figure().dpi_scale_trans.inverted()).width*self.axes.get_figure().dpi)
-        # print(self.axes.get_window_extent().transformed(self.axes.get_figure().dpi_scale_trans.inverted()).height*self.axes.get_figure().dpi)
+    def init_plot(self, plotPoints):
+        self.axes.plot(
+            plotPoints.points.x,
+            plotPoints.points.y,
+            color="blue",
+        )
+        # Fix lim
+        self.parent.canvasPlotBottomSlider.setRange(plotPoints.x_range)
+        self.parent.canvasPlotLeftSlider.setRange(plotPoints.y_range)
+        self.axes.set_xlim(plotPoints.x_limit)
+        self.axes.set_ylim(plotPoints.y_limit)

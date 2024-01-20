@@ -3,17 +3,16 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QVBoxLayout,
     QComboBox,
-    QMainWindow,
+    QApplication,
+    QLineEdit,
 )
 from widgets.CollapsibleBox import CollapsibleBox
-from widgets.MplCanvas import MplCanvas
+from utils import check_number
 
 
 class MplPlotVertical(QWidget):
-    def __init__(self, app: QMainWindow, plotCanvas: MplCanvas):
+    def __init__(self):
         super(QWidget, self).__init__()
-        self.plotCanvas = plotCanvas
-        self.app = app
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -22,7 +21,7 @@ class MplPlotVertical(QWidget):
         layout.addWidget(box)
         boxLayout = QFormLayout()
 
-        # Add things
+        # Add Plot Color
         self.plotColorMpl = QComboBox()
         self.plotColorMpl.addItems(
             ["blue", "green", "red", "cyan", "magenta", "yellow", "black", "white"]
@@ -30,11 +29,35 @@ class MplPlotVertical(QWidget):
         self.plotColorMpl.currentTextChanged.connect(lambda x: self.change_color(x))
         boxLayout.addRow("Plot Color:", self.plotColorMpl)
 
+        # Add Label Color
+        self.plotLabelColorMpl = QComboBox()
+        self.plotLabelColorMpl.addItems(
+            ["black", "blue", "green", "red", "cyan", "magenta", "yellow", "white"]
+        )
+        self.plotLabelColorMpl.currentTextChanged.connect(lambda x: self.change_label_color(x))
+        boxLayout.addRow("Label Color:", self.plotLabelColorMpl)
+
+        # Add z value
+        self.zMpl = QLineEdit()
+        self.zMpl.textChanged.connect(lambda x: self.change_z(x))
+        boxLayout.addRow("z:", self.zMpl)
+
         box.setContentLayout(boxLayout)
 
     def change_color(self, new_color):
-        self.app.plotHorizo.set_colors(new_color)
-        self.plotCanvas.update_plot(
-            plotHorizo=self.app.plotHorizo,
-        )
+        app = QApplication.activeWindow()
+        app.plotHorizo.set_colors(new_color)
+        app.canvasPlot.update_plot()
 
+    def change_label_color(self, new_color):
+        app = QApplication.activeWindow()
+        app.plotHorizo.set_label_colors(new_color)
+        app.canvasPlot.update_plot()
+
+    def change_z(self, new_z):
+        if not check_number(new_z):
+            return
+
+        app = QApplication.activeWindow()
+        app.plotHorizo.set_z(float(new_z))
+        app.canvasPlot.update_plot()

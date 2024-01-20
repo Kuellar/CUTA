@@ -15,8 +15,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
-from widgets.MplSettingsLayout import MplSettingsLayout
-from widgets.MplPlotSettingsLayout import MplPlotSettingsLayout
+from widgets.MplSettings import MplSettings
+from widgets.MplPlotSettings import MplPlotSettings
 from widgets.ButtonsSettings import ButtonsSettings
 from widgets.ConsoleOutput import ConsoleOutput
 from widgets.FilesMenu import FilesMenu
@@ -25,7 +25,7 @@ from widgets.CollapsibleBox import CollapsibleBox
 from widgets.SliderZoom import SliderZoom
 from widgets.MplPlotVertical import MplPlotVertical
 from utils import open_data
-from data import Points, PlotPoints, PlotHorizo
+from data import Points, PlotPoints, PlotHorizo, Plot
 
 
 class Window(QMainWindow):
@@ -36,6 +36,7 @@ class Window(QMainWindow):
         # Global vars
         self.lastDirOpen = None
         self.lastFileOpen = None
+        self.plot = Plot()
         self.plotPoints = None
         self.plotHorizo = PlotHorizo(names=[], x=[])
 
@@ -63,12 +64,8 @@ class Window(QMainWindow):
         self.canvasPlotGridLayout = QGridLayout()
         self.canvasPlotGridLayout.setContentsMargins(0, 0, 10, 0)
         self.canvasPlotGrid.setLayout(self.canvasPlotGridLayout)
-        self.canvasPlotLeftSlider = SliderZoom(
-            horizontal=False, mplCanvas=self.canvasPlot
-        )
-        self.canvasPlotBottomSlider = SliderZoom(
-            horizontal=True, mplCanvas=self.canvasPlot
-        )
+        self.canvasPlotLeftSlider = SliderZoom(horizontal=False)
+        self.canvasPlotBottomSlider = SliderZoom(horizontal=True)
         self.canvasPlotBottomSlider.setMaximumHeight(40)  # TODO: FIX
         self.canvasPlotNull = QWidget()
         self.canvasPlotGridLayout.addWidget(self.canvasPlotLeftSlider, 0, 0, 1, 1)
@@ -89,22 +86,16 @@ class Window(QMainWindow):
         self.controlsLayout.setContentsMargins(1, 0, 1, 0)
         self.controls.setObjectName("controls")
         # Buttons Settings
-        self.buttonSettings = ButtonsSettings(self)
+        self.buttonSettings = ButtonsSettings()
         self.controlsLayout.addWidget(self.buttonSettings)
         # Global Settings
-        self.mplSettingsBox = CollapsibleBox("Global Settings")
-        self.mplSettingsLayout = MplSettingsLayout(self.canvasPlot)
-        self.controlsLayout.addWidget(self.mplSettingsBox)
-        self.mplSettingsBox.setContentLayout(self.mplSettingsLayout)
+        self.mplSettings = MplSettings()
+        self.controlsLayout.addWidget(self.mplSettings)
         # Plot Setting
-        self.mplPlotSettingsBox = CollapsibleBox("Plot Settings")
-        self.mplPlotSettingsLayout = MplPlotSettingsLayout(
-            self, self.canvasPlot, self.mplSettingsLayout
-        )
-        self.controlsLayout.addWidget(self.mplPlotSettingsBox)
-        self.mplPlotSettingsBox.setContentLayout(self.mplPlotSettingsLayout)
+        self.mplPlotSettings = MplPlotSettings()
+        self.controlsLayout.addWidget(self.mplPlotSettings)
         # Plot Vertical Lines
-        self.mplPlotVertical = MplPlotVertical(self, self.canvasPlot)
+        self.mplPlotVertical = MplPlotVertical()
         self.controlsLayout.addWidget(self.mplPlotVertical)
 
         self.controlsLayout.addStretch()
@@ -120,12 +111,7 @@ class Window(QMainWindow):
         errordata = [0, 0.1, 0, 0, 0.3, 0.2, 0, 0, 0.5, 0]
         self.plotPoints = PlotPoints("Start Plot", Points(xdata, ydata, errordata))
 
-        self.canvasPlot.update_plot(
-            self.plotPoints,
-            self.plotHorizo,
-            self.mplSettingsLayout,
-            self.mplPlotSettingsLayout,
-        )
+        self.canvasPlot.init_plot(self.plotPoints)
         self.show()
 
         # Save splitter values
@@ -190,12 +176,7 @@ class Window(QMainWindow):
             self.plotHorizo = plotData
             self.outputConsole.printOutput(f"{len(self.plotHorizo.names)} functions")
 
-        self.canvasPlot.update_plot(
-            self.plotPoints,
-            self.plotHorizo,
-            self.mplSettingsLayout,
-            self.mplPlotSettingsLayout,
-        )
+        self.canvasPlot.update_plot()
         self.lastFileOpen = file_to_open
 
     def openFolderDialog(self):
