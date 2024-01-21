@@ -4,7 +4,7 @@ class PlotHorizo:
         self.x = list(map(x.__getitem__, indexes))
         self.names = list(map(names.__getitem__, indexes))
 
-        self.names_y = 0.25
+        self.names_y = 0.1
         self.names_color = "black"
         self.z = z
         self.linestyles = "--"
@@ -22,6 +22,8 @@ class PlotHorizo:
     def set_z(self, new_z: float) -> None:
         self.z = new_z
 
-    def set_show_names(self, flag) -> None:
+    def set_show_names(self, flag: bool) -> None:
         self.show_names = flag
 
+    def set_names_y(self, pos: float) -> None:
+        self.names_y = pos

@@ -94,9 +94,7 @@ class Window(QMainWindow):
         # Plot Setting
         self.mplPlotSettings = MplPlotSettings()
         self.controlsLayout.addWidget(self.mplPlotSettings)
-        # Plot Vertical Lines
-        self.mplPlotVertical = MplPlotVertical()
-        self.controlsLayout.addWidget(self.mplPlotVertical)
+
 
         self.controlsLayout.addStretch()
 
@@ -174,6 +172,7 @@ class Window(QMainWindow):
 
         if type(plotData) == PlotHorizo:
             self.plotHorizo = plotData
+            self.addVerticalSettings()
             self.outputConsole.printOutput(f"{len(self.plotHorizo.names)} functions")
 
         self.canvasPlot.update_plot()
@@ -190,6 +189,11 @@ class Window(QMainWindow):
             self.lastDirOpen = folder_name
             self.outputConsole.printOutput("Opening Folder " + folder_name)
             self.filesMenu.open_folder(folder_name)
+
+    def addVerticalSettings(self):
+        # Plot Vertical Lines
+        self.mplPlotVertical = MplPlotVertical()
+        self.controlsLayout.insertWidget(3, self.mplPlotVertical)
 
 
 if __name__ == "__main__":
