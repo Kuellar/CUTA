@@ -96,10 +96,10 @@ class ButtonsSettings(QWidget):
         app.plotPoints.set_y_limit(y_original)
         app.canvasPlotBottomSlider.setValue(x_original)
         app.canvasPlotLeftSlider.setValue(y_original)
-        app.canvasPlot.remove_texts()
-        app.canvasPlot.draw_texts()
         app.canvasPlot.update_xlim()
         app.canvasPlot.update_ylim()
+        app.canvasPlot.remove_texts()
+        app.canvasPlot.draw_texts()
 
     def take_screenshot(self):
         self.moveButton.set_active(False)

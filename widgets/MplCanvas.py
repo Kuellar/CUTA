@@ -189,64 +189,79 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def draw_texts(self):
         app = QApplication.activeWindow()
-
-        if app.plotHorizo:
+        if app.plotHorizo and app.plotHorizo.show_names:
             base_pos = (
                 self.axes.get_ylim()[0]
                 + (self.axes.get_ylim()[1] - self.axes.get_ylim()[0])
                 * app.plotHorizo.names_y
             )
-            last_text = None
+            new_text = None
+            used_space = [-1] * len(app.plotHorizo.x)
+            last_valid = None
+            init_list = None
+
             for name_i, x in enumerate(
                 [(1 + app.plotHorizo.z) * elem for elem in app.plotHorizo.x]
             ):
                 if x > app.plotPoints.x_limit[0] and x < app.plotPoints.x_limit[1]:
-                    last_text = self.axes.text(
+                    # print(app.plotHorizo.names[name_i], name_i, x)
+                    if not new_text:
+                        used_space[0] = name_i
+                        init_list = name_i
+                        last_valid = name_i
+                        new_text = self.axes.text(
+                            x,
+                            base_pos,
+                            app.plotHorizo.names[name_i],
+                            color=app.plotHorizo.label_colors,
+                        )
+                        continue
+
+                    new_text = self.axes.text(
                         x,
                         base_pos,
                         app.plotHorizo.names[name_i],
                         color=app.plotHorizo.label_colors,
                     )
-                    self.draw()
-
-                    # Check if collide with other text
-                    last_text_bbox = self.axes.transData.inverted().transform_bbox(
-                        last_text.get_window_extent()
+                    new_text_bbox = self.axes.transData.inverted().transform_bbox(
+                        new_text.get_window_extent()
                     )
-                    bbox = None
 
-                    for text in self.axes.texts[:-1]:
-                        bbox = self.axes.transData.inverted().transform_bbox(
-                            text.get_window_extent()
+                    # Check collision
+                    coll = False
+                    for j, old_text in enumerate(
+                        self.axes.texts[last_valid - init_list : -1]
+                    ):
+                        if coll:
+                            break
+                        # print(old_text.get_text())
+                        old_text_bbox = self.axes.transData.inverted().transform_bbox(
+                            old_text.get_window_extent()
                         )
                         if (
-                            last_text_bbox.x0 >= bbox.x0
-                            and last_text_bbox.x0 <= bbox.x1
-                            and last_text_bbox.y0 == bbox.y0
+                            new_text_bbox.x0 >= old_text_bbox.x0
+                            and new_text_bbox.x0 <= old_text_bbox.x1
                         ):
-                            last_text.set_position(
-                                (x, last_text.get_position()[1] + bbox.y1 - bbox.y0)
-                            )
-                            self.draw()
-                            last_text_bbox = (
-                                self.axes.transData.inverted().transform_bbox(
-                                    last_text.get_window_extent()
-                                )
-                            )
-                        elif (
-                            last_text_bbox.x1 >= bbox.x0
-                            and last_text_bbox.x1 <= bbox.x1
-                            and last_text_bbox.y0 == bbox.y0
-                        ):
-                            last_text.set_position(
-                                (x, last_text.get_position()[1] + bbox.y1 - bbox.y0)
-                            )
-                            self.draw()
-                            last_text_bbox = (
-                                self.axes.transData.inverted().transform_bbox(
-                                    last_text.get_window_extent()
-                                )
-                            )
+                            coll = True
+                            last_valid = j + last_valid
+                            # print("Collision, check last valid: ", last_valid)
+                            for i, val in enumerate(used_space):
+                                if val < last_valid:
+                                    used_space[i] = name_i
+                                    new_text.set_position(
+                                        (
+                                            x,
+                                            base_pos
+                                            + (new_text_bbox.y1 - new_text_bbox.y0) * i,
+                                        )
+                                    )
+                                    break
+                    if not coll:
+                        last_valid = name_i
+                        used_space[0] = name_i
+
+                    # print(used_space, init_list, last_valid)
+        self.draw()
 
     def update_plot(self):
         app = QApplication.activeWindow()
@@ -307,7 +322,8 @@ class MplCanvas(FigureCanvasQTAgg):
         self.update_xlim()
         self.update_ylim()
         self.remove_texts()
-        self.draw_texts()
+        if app.plotHorizo.show_names:
+            self.draw_texts()
 
     def init_plot(self, plotPoints):
         self.axes.plot(

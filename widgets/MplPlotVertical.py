@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QApplication,
     QLineEdit,
+    QCheckBox,
 )
 from widgets.CollapsibleBox import CollapsibleBox
 from utils import check_number
@@ -29,6 +30,12 @@ class MplPlotVertical(QWidget):
         self.plotColorMpl.currentTextChanged.connect(lambda x: self.change_color(x))
         boxLayout.addRow("Plot Color:", self.plotColorMpl)
 
+        # Show Label
+        self.showLabelMpl = QCheckBox()
+        self.showLabelMpl.setChecked(True)
+        self.showLabelMpl.stateChanged.connect(lambda x: self.show_label(x))
+        boxLayout.addRow("Show Label:", self.showLabelMpl)
+
         # Add Label Color
         self.plotLabelColorMpl = QComboBox()
         self.plotLabelColorMpl.addItems(
@@ -49,6 +56,13 @@ class MplPlotVertical(QWidget):
         app.plotHorizo.set_colors(new_color)
         app.canvasPlot.update_plot()
 
+    def show_label(self, flag):
+        app = QApplication.activeWindow()
+        app.plotHorizo.set_show_names(True if flag else False)
+        if not flag:
+            app.canvasPlot.remove_texts()
+        app.canvasPlot.update_plot()
+
     def change_label_color(self, new_color):
         app = QApplication.activeWindow()
         app.plotHorizo.set_label_colors(new_color)
@@ -60,4 +74,5 @@ class MplPlotVertical(QWidget):
 
         app = QApplication.activeWindow()
         app.plotHorizo.set_z(float(new_z))
+        self.showLabelMpl.setChecked(False)
         app.canvasPlot.update_plot()
