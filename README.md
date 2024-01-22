@@ -1,5 +1,8 @@
 # CUTA 
 
+## Requirements
+* python3.9+
+
 ## Installation
 
 1. Clone this repository.
