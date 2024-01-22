@@ -10,7 +10,7 @@ class CustomButton(QPushButton):
     IconSize = QSize(16, 16)
 
     def __init__(self, qta_id):
-        super(QPushButton, self).__init__()
+        super().__init__()
 
         icon = QIcon(qta.icon(qta_id).pixmap(self.IconSize))
         self.setIcon(icon)

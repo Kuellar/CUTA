@@ -3,9 +3,6 @@ from PyQt6.QtWidgets import QTextBrowser
 
 
 class ConsoleOutput(QTextBrowser):
-    def __init__(self):
-        super(QTextBrowser, self).__init__()
-
     def print_output(self, line_text="Test"):
         now = datetime.now().strftime("[%H:%M:%S] ")
         if self.toPlainText() == "":

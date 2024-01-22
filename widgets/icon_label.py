@@ -14,7 +14,7 @@ class IconLabel(QWidget):
     HorizontalSpacing = 2
 
     def __init__(self, qta_id, text, final_stretch=True):
-        super(QWidget, self).__init__()
+        super().__init__()
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

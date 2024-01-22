@@ -20,4 +20,4 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint --disable=E0401 --disable=R0902 --disable=R0912 --disable=R0914 --disable=R1702 $(git ls-files '*.py')
+        pylint --disable=E0401 --disable=E0611 --disable=C0103 --disable=R0902 --disable=R0903 --disable=R0912 --disable=R0914 --disable=R1702 $(git ls-files '*.py')

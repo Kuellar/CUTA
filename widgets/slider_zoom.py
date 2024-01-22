@@ -16,7 +16,7 @@ from .rotable_container import RotatableContainer
 
 class SliderZoom(QWidget):
     def __init__(self, horizontal=True):
-        super(QWidget, self).__init__()
+        super().__init__()
         self.horizontal = horizontal
 
         self.slider_layout = QHBoxLayout() if horizontal else QVBoxLayout()

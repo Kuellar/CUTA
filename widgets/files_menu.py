@@ -22,7 +22,7 @@ INVALID_FOLDER = ["env", "venv", "ENV", "env.bak", "venv.bak", "node_modules"]
 
 class FilesMenu(QWidget):
     def __init__(self, window):
-        super(QWidget, self).__init__()
+        super().__init__()
         self.win = window
         self.root_folder = None
         icon_size = QSize(16, 16)

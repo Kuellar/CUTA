@@ -6,7 +6,7 @@ from .custom_button import CustomButton
 
 class ButtonsSettings(QWidget):
     def __init__(self):
-        super(QWidget, self).__init__()
+        super().__init__()
         self.icon_size = QSize(48, 48)
         self.buttons_settings_layout = QHBoxLayout()
         self.buttons_settings_layout.setContentsMargins(0, 0, 0, 0)

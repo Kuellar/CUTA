@@ -12,7 +12,7 @@ from widgets.collapsible_box import CollapsibleBox
 
 class MplSettings(QWidget):
     def __init__(self):
-        super(QWidget, self).__init__()
+        super().__init__()
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
