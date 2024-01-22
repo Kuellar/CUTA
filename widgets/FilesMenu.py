@@ -16,6 +16,7 @@ from PyQt6.QtCore import (
 from widgets.PushButtonMenu import PushButtonMenu
 from functools import partial
 from superqt import QCollapsible
+from utils import check_number
 
 
 INVALID_FOLDER = ["env", "venv", "ENV", "env.bak", "venv.bak", "node_modules"]
@@ -62,7 +63,15 @@ class FilesMenu(QWidget):
         files.sort()
         for file in files:
             if file.endswith(".dat"):
-                file_widget = PushButtonMenu(file)
+                normal_plot = False
+                try:
+                    with open(folder_name + "/" + file) as f:
+                        first_line = f.readline().split()
+                        if len(first_line) == 3 and check_number(first_line[0]):
+                            normal_plot = True
+                except:
+                    print(":(")
+                file_widget = PushButtonMenu(file, normal_plot)
                 file_widget.clicked.connect(
                     partial(self.win.openFile, file_name=file, file_dir=folder_name)
                 )

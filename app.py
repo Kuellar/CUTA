@@ -95,7 +95,6 @@ class Window(QMainWindow):
         self.mplPlotSettings = MplPlotSettings()
         self.controlsLayout.addWidget(self.mplPlotSettings)
 
-
         self.controlsLayout.addStretch()
 
         # Create main widget and assign layout
@@ -167,13 +166,13 @@ class Window(QMainWindow):
         if type(plotData) == PlotPoints:
             self.plotPoints = plotData
             self.outputConsole.printOutput(
-                f"{len(self.plotPoints.points.x)} data points"
+                f"{len(self.plotPoints.points.x)} data points."
             )
 
         if type(plotData) == PlotHorizo:
             self.plotHorizo = plotData
             self.addVerticalSettings()
-            self.outputConsole.printOutput(f"{len(self.plotHorizo.names)} functions")
+            self.outputConsole.printOutput(f"{len(self.plotHorizo.names)} functions.")
 
         self.canvasPlot.update_plot()
         self.lastFileOpen = file_to_open
