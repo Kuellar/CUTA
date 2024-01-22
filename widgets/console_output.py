@@ -6,7 +6,7 @@ class ConsoleOutput(QTextBrowser):
     def __init__(self):
         super(QTextBrowser, self).__init__()
 
-    def printOutput(self, line_text="Test"):
+    def print_output(self, line_text="Test"):
         now = datetime.now().strftime("[%H:%M:%S] ")
         if self.toPlainText() == "":
             new_text = self.toPlainText() + now + line_text

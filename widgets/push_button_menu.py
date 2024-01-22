@@ -7,8 +7,8 @@ class PushButtonMenu(QPushButton):
         icon = qta.icon("fa5.file")
         if not normal:
             icon = qta.icon("fa5.file-alt")
-        super(QPushButton, self).__init__(icon, text)  #  Fix with css...
+        super(QPushButton, self).__init__(icon, text)
         self.filename = text
 
     def autopress(self, window):
-        window.openFile(self.filename)
+        window.open_file(self.filename)

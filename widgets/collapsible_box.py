@@ -1,4 +1,3 @@
-import qtawesome as qta
 from PyQt6.QtCore import (
     Qt,
     QParallelAnimationGroup,
@@ -53,7 +52,7 @@ class CollapsibleBox(QWidget):
         )
         self.toggle_animation.start()
 
-    def setContentLayout(self, layout):
+    def setContentLayout(self, layout):  # pylint: disable=C0103
         lay = self.content_area.layout()
         del lay
         self.content_area.setLayout(layout)

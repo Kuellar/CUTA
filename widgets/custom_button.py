@@ -9,7 +9,7 @@ from PyQt6.QtGui import QIcon
 class CustomButton(QPushButton):
     IconSize = QSize(16, 16)
 
-    def __init__(self, qta_id, text=""):
+    def __init__(self, qta_id):
         super(QPushButton, self).__init__()
 
         icon = QIcon(qta.icon(qta_id).pixmap(self.IconSize))

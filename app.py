@@ -1,7 +1,7 @@
 import sys
-from numpy.random import randint
 from os.path import expanduser
 from pathlib import Path
+from numpy.random import randint
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -15,15 +15,14 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
-from widgets.MplSettings import MplSettings
-from widgets.MplPlotSettings import MplPlotSettings
-from widgets.ButtonsSettings import ButtonsSettings
-from widgets.ConsoleOutput import ConsoleOutput
-from widgets.FilesMenu import FilesMenu
-from widgets.MplCanvas import MplCanvas
-from widgets.CollapsibleBox import CollapsibleBox
-from widgets.SliderZoom import SliderZoom
-from widgets.MplPlotVertical import MplPlotVertical
+from widgets.mpl_settings import MplSettings
+from widgets.mpl_plot_settings import MplPlotSettings
+from widgets.buttons_settings import ButtonsSettings
+from widgets.console_output import ConsoleOutput
+from widgets.files_menu import FilesMenu
+from widgets.mpl_canvas import MplCanvas
+from widgets.slider_zoom import SliderZoom
+from widgets.mpl_plot_vertical import MplPlotVertical
 from utils import open_data
 from data import Points, PlotPoints, PlotHorizo, Plot
 
@@ -34,172 +33,174 @@ class Window(QMainWindow):
         self.setWindowTitle("CUTA")
 
         # Global vars
-        self.lastDirOpen = None
-        self.lastFileOpen = None
+        self.last_dir_open = None
+        self.last_file_open = None
         self.plot = Plot()
-        self.plotPoints = None
-        self.plotHorizo = PlotHorizo(names=[], x=[])
+        self.plot_points = None
+        self.plot_horizo = PlotHorizo(names=[], x=[])
 
-        self._createActions()
-        self._createMenuBar()
+        self._create_actions()
+        self._create_menu_bar()
 
         # Create layout -> TODO: organize
-        mainLayout = QHBoxLayout()
-        self.mainLayoutSplitter = QSplitter()
-        self.filesMenu = FilesMenu(self)
-        self.mainLayoutSplitter.addWidget(self.filesMenu)
-        self.widgetContent = QWidget()
-        self.contentLayout = QVBoxLayout()
-        self.contentLayoutSplitter = QSplitter(Qt.Vertical)
-        self.widgetContent.setLayout(self.contentLayout)
-        self.mainLayoutSplitter.addWidget(self.widgetContent)
-        mainLayout.addWidget(self.mainLayoutSplitter)
-        self.canvasWorkspace = QWidget()
+        main_layout = QHBoxLayout()
+        main_layout_splitter = QSplitter()
+        self.files_menu = FilesMenu(self)
+        main_layout_splitter.addWidget(self.files_menu)
+        widget_content = QWidget()
+        content_layout = QVBoxLayout()
+        content_layout_splitter = QSplitter(Qt.Vertical)
+        widget_content.setLayout(content_layout)
+        main_layout_splitter.addWidget(widget_content)
+        main_layout.addWidget(main_layout_splitter)
+        canvas_workspace = QWidget()
         self.controls = QWidget()
-        self.canvasPlot = MplCanvas(self, width=10, height=8, dpi=100)
-        self.canvasWorkspaceLayout = QHBoxLayout()
-        self.canvasWorkspaceLayoutSplitter = QSplitter()
-        self.canvasWorkspace.setLayout(self.canvasWorkspaceLayout)
-        self.canvasPlotGrid = QWidget()
-        self.canvasPlotGridLayout = QGridLayout()
-        self.canvasPlotGridLayout.setContentsMargins(0, 0, 10, 0)
-        self.canvasPlotGrid.setLayout(self.canvasPlotGridLayout)
-        self.canvasPlotLeftSlider = SliderZoom(horizontal=False)
-        self.canvasPlotBottomSlider = SliderZoom(horizontal=True)
-        self.canvasPlotBottomSlider.setMaximumHeight(40)  # TODO: FIX
-        self.canvasPlotNull = QWidget()
-        self.canvasPlotGridLayout.addWidget(self.canvasPlotLeftSlider, 0, 0, 1, 1)
-        self.canvasPlotGridLayout.addWidget(self.canvasPlotBottomSlider, 1, 1, 1, 1)
-        self.canvasPlotGridLayout.addWidget(self.canvasPlotNull, 1, 0, 1, 1)
-        self.canvasWorkspaceLayoutSplitter.addWidget(self.canvasPlotGrid)
-        self.canvasWorkspaceLayoutSplitter.addWidget(self.controls)
-        self.canvasPlotGridLayout.addWidget(self.canvasPlot, 0, 1, 1, 1)
-        self.canvasWorkspaceLayout.addWidget(self.canvasWorkspaceLayoutSplitter)
-        self.contentLayoutSplitter.addWidget(self.canvasWorkspace)
-        self.outputConsole = ConsoleOutput()
-        self.contentLayoutSplitter.addWidget(self.outputConsole)
-        self.contentLayout.addWidget(self.contentLayoutSplitter)
+        self.canvas_plot = MplCanvas(self, width=10, height=8, dpi=100)
+        canvas_workspace_layout = QHBoxLayout()
+        self.canvas_workspace_layout_splitter = QSplitter()
+        canvas_workspace.setLayout(canvas_workspace_layout)
+        self.canvas_plot_grid = QWidget()
+        canvas_plot_grid_layout = QGridLayout()
+        canvas_plot_grid_layout.setContentsMargins(0, 0, 10, 0)
+        self.canvas_plot_grid.setLayout(canvas_plot_grid_layout)
+        self.canvas_plot_left_slider = SliderZoom(horizontal=False)
+        self.canvas_plot_bottom_slider = SliderZoom(horizontal=True)
+        self.canvas_plot_bottom_slider.setMaximumHeight(40)
+        canvas_plot_null = QWidget()
+        canvas_plot_grid_layout.addWidget(self.canvas_plot_left_slider, 0, 0, 1, 1)
+        canvas_plot_grid_layout.addWidget(self.canvas_plot_bottom_slider, 1, 1, 1, 1)
+        canvas_plot_grid_layout.addWidget(canvas_plot_null, 1, 0, 1, 1)
+        self.canvas_workspace_layout_splitter.addWidget(self.canvas_plot_grid)
+        self.canvas_workspace_layout_splitter.addWidget(self.controls)
+        canvas_plot_grid_layout.addWidget(self.canvas_plot, 0, 1, 1, 1)
+        canvas_workspace_layout.addWidget(self.canvas_workspace_layout_splitter)
+        content_layout_splitter.addWidget(canvas_workspace)
+        self.output_console = ConsoleOutput()
+        content_layout_splitter.addWidget(self.output_console)
+        content_layout.addWidget(content_layout_splitter)
 
         # Add things to Controls
-        self.controlsLayout = QVBoxLayout()
-        self.controls.setLayout(self.controlsLayout)
-        self.controlsLayout.setContentsMargins(1, 0, 1, 0)
+        self.controls_layout = QVBoxLayout()
+        self.controls.setLayout(self.controls_layout)
+        self.controls_layout.setContentsMargins(1, 0, 1, 0)
         self.controls.setObjectName("controls")
         # Buttons Settings
-        self.buttonSettings = ButtonsSettings()
-        self.controlsLayout.addWidget(self.buttonSettings)
+        self.button_settings = ButtonsSettings()
+        self.controls_layout.addWidget(self.button_settings)
         # Global Settings
-        self.mplSettings = MplSettings()
-        self.controlsLayout.addWidget(self.mplSettings)
+        self.mpl_settings = MplSettings()
+        self.controls_layout.addWidget(self.mpl_settings)
         # Plot Setting
-        self.mplPlotSettings = MplPlotSettings()
-        self.controlsLayout.addWidget(self.mplPlotSettings)
+        self.mpl_plot_settings = MplPlotSettings()
+        self.controls_layout.addWidget(self.mpl_plot_settings)
 
-        self.controlsLayout.addStretch()
+        self.controls_layout.addStretch()
 
         # Create main widget and assign layout
         widget = QWidget()
-        widget.setLayout(mainLayout)
+        widget.setLayout(main_layout)
         self.setCentralWidget(widget)
 
         # Plot
         xdata = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         ydata = randint(0, 10, 10)
         errordata = [0, 0.1, 0, 0, 0.3, 0.2, 0, 0, 0.5, 0]
-        self.plotPoints = PlotPoints("Start Plot", Points(xdata, ydata, errordata))
+        self.plot_points = PlotPoints("Start Plot", Points(xdata, ydata, errordata))
 
-        self.canvasPlot.init_plot(self.plotPoints)
+        self.canvas_plot.init_plot(self.plot_points)
         self.show()
 
         # Save splitter values
-        self.ratioPlotSettings = self.canvasWorkspaceLayoutSplitter.sizes()
-        self.canvasPlotGridHeight = self.canvasPlotGrid.frameGeometry().height()
+        self.ratio_plot_settings = self.canvas_workspace_layout_splitter.sizes()
+        self.canvas_plot_grid_height = self.canvas_plot_grid.frameGeometry().height()
 
-    def _createMenuBar(self):
-        menuBar = self.menuBar()
+    def _create_menu_bar(self):
+        menu_bar = self.menuBar()
         # File Menu
-        fileMenu = QMenu("&File", self)
-        menuBar.addMenu(fileMenu)
-        fileMenu.addAction(self.openAction)
-        fileMenu.addAction(self.openFolderAction)
+        file_menu = QMenu("&File", self)
+        menu_bar.addMenu(file_menu)
+        file_menu.addAction(self.open_action)
+        file_menu.addAction(self.open_folder_action)
         # View Menu
-        viewMenu = QMenu("&View", self)
-        menuBar.addMenu(viewMenu)
-        viewMenu.addAction(self.consoleAction)
+        view_menu = QMenu("&View", self)
+        menu_bar.addMenu(view_menu)
+        view_menu.addAction(self.console_action)
         # Help Menu
-        helpMenu = menuBar.addMenu("&Help")
+        _ = menu_bar.addMenu("&Help")
 
-    def _createActions(self):
-        self.openAction = QAction("&Open File...", self)
-        self.openAction.triggered.connect(self.openFileDialog)
-        self.openFolderAction = QAction("&Open Folder...", self)
-        self.openFolderAction.triggered.connect(self.openFolderDialog)
-        self.consoleAction = QAction("&Console", self)
-        self.consoleAction.triggered.connect(
-            lambda: self.outputConsole.show()
-            if self.outputConsole.isHidden()
-            else self.outputConsole.hide()
+    def _create_actions(self):
+        self.open_action = QAction("&Open File...", self)
+        self.open_action.triggered.connect(self.open_file_dialog)
+        self.open_folder_action = QAction("&Open Folder...", self)
+        self.open_folder_action.triggered.connect(self.open_folder_dialog)
+        self.console_action = QAction("&Console", self)
+        self.console_action.triggered.connect(
+            lambda: self.output_console.show()
+            if self.output_console.isHidden()
+            else self.output_console.hide()
         )
 
-    def openFileDialog(self):
+    def open_file_dialog(self):
         file_name = QFileDialog.getOpenFileName(
             self,
             "Open File",
-            self.lastDirOpen if self.lastDirOpen else expanduser("~"),
+            self.last_dir_open if self.last_dir_open else expanduser("~"),
             "dat (*.dat)",
         )
         if file_name[0]:
             file_name_open = file_name[0].split("/")[-1]
             file_dir_open = "/".join(file_name[0].split("/")[:-1])
-            self.openFile(file_name=file_name_open, file_dir=file_dir_open)
+            self.open_file(file_name=file_name_open, file_dir=file_dir_open)
 
-    def openFile(self, file_name=None, file_dir=None):
-        file_to_open = (file_dir if file_dir else self.lastDirOpen) + "/" + file_name
-        self.outputConsole.printOutput("Opening File " + file_to_open)
+    def open_file(self, file_name=None, file_dir=None):
+        file_to_open = (file_dir if file_dir else self.last_dir_open) + "/" + file_name
+        self.output_console.print_output("Opening File " + file_to_open)
         if file_dir:
-            self.lastDirOpen = file_dir
-        plotData, error = open_data(self, file_to_open)
+            self.last_dir_open = file_dir
+        plot_data, error = open_data(self, file_to_open)
 
         if error:
-            self.outputConsole.printOutput(error["msg"])
+            self.output_console.print_output(error["msg"])
 
-        if type(plotData) == PlotPoints:
-            self.plotPoints = plotData
-            self.outputConsole.printOutput(
-                f"{len(self.plotPoints.points.x)} data points."
+        if isinstance(plot_data, PlotPoints):
+            self.plot_points = plot_data
+            self.output_console.print_output(
+                f"{len(self.plot_points.points.x)} data points."
             )
 
-        if type(plotData) == PlotHorizo:
-            self.plotHorizo = plotData
-            self.addVerticalSettings()
-            self.outputConsole.printOutput(f"{len(self.plotHorizo.names)} functions.")
+        if isinstance(plot_data, PlotHorizo):
+            self.plot_horizo = plot_data
+            self.add_vertical_settings()
+            self.output_console.print_output(
+                f"{len(self.plot_horizo.names)} functions."
+            )
 
-        self.canvasPlot.update_plot()
-        self.lastFileOpen = file_to_open
+        self.canvas_plot.update_plot()
+        self.last_file_open = file_to_open
 
-    def openFolderDialog(self):
+    def open_folder_dialog(self):
         folder_name = QFileDialog.getExistingDirectory(
             self,
             "Open Directory",
-            self.lastDirOpen if self.lastDirOpen else expanduser("~"),
+            self.last_dir_open if self.last_dir_open else expanduser("~"),
             options=QFileDialog.Option.ShowDirsOnly,
         )
         if folder_name:
-            self.lastDirOpen = folder_name
-            self.outputConsole.printOutput("Opening Folder " + folder_name)
-            self.filesMenu.open_folder(folder_name)
+            self.last_dir_open = folder_name
+            self.output_console.print_output("Opening Folder " + folder_name)
+            self.files_menu.open_folder(folder_name)
 
-    def addVerticalSettings(self):
+    def add_vertical_settings(self):
         # Plot Vertical Lines
-        self.mplPlotVertical = MplPlotVertical()
-        self.controlsLayout.insertWidget(3, self.mplPlotVertical)
+        mpl_plot_vertical = MplPlotVertical()
+        self.controls_layout.insertWidget(3, mpl_plot_vertical)
 
 
 if __name__ == "__main__":
     app = QApplication([])
     win = Window()
     css_path = (Path(__file__).parent / "./ui/style.css").resolve()
-    with open(css_path, "r") as fh:
+    with open(css_path, "r", encoding="utf-8") as fh:
         app.setStyleSheet(fh.read())
     win.show()
     sys.exit(app.exec())

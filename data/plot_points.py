@@ -1,4 +1,4 @@
-from .Points import Points
+from .points import Points
 
 
 RANGE = 5 / 100
