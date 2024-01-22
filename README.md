@@ -18,7 +18,7 @@ source ./env/bin/activate
 4. Install dependencies.
 ```
 cd CUTA
-pip install -r requeriments.txt
+pip install -r requirements.txt
 ```
 5. Launch CUTA
 ```
