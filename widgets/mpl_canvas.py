@@ -194,7 +194,7 @@ class MplCanvas(FigureCanvasQTAgg):
             for name_i, x in enumerate(
                 [(1 + app.plot_horizo.z) * elem for elem in app.plot_horizo.x]
             ):
-                if x > app.plot_points.x_limit[0] and x < app.plot_points.x_limit[1]:
+                if app.plot_points.x_limit[0] < x < app.plot_points.x_limit[1]:
                     # print(app.plot_horizo.names[name_i], name_i, x)
                     if not new_text:
                         used_space[0] = name_i

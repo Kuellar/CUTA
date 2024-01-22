@@ -13,3 +13,12 @@ class Points:
             min(y) if y is not None else None,
             max(y) if y is not None else None,
         ]
+
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+
+    def get_error(self):
+        return self.error

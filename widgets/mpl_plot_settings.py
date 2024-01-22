@@ -93,7 +93,7 @@ class MplPlotSettings(QWidget):
 
     def show_error(self, flag):
         app = QApplication.activeWindow()
-        app.plot_points.set_show_error(True if flag else False)
+        app.plot_points.set_show_error(bool(flag))
         app.canvas_plot.update_plot()
 
     def change_error_color(self, new_error_color):

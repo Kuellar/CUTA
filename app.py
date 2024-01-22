@@ -27,8 +27,8 @@ from utils import open_data
 from data import Points, PlotPoints, PlotHorizo, Plot
 
 
-class Window(QMainWindow):
-    def __init__(self):
+class Window(QMainWindow):  # pylint: disable=R0902
+    def __init__(self):  # pylint: disable=R0915
         super().__init__()
         self.setWindowTitle("CUTA")
 

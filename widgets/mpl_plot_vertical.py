@@ -24,13 +24,13 @@ class MplPlotVertical(QWidget):
         layout.addWidget(box)
         box_layout = QFormLayout()
 
-        # Add Plot Color
-        self.plot_color_mpl = QComboBox()
-        self.plot_color_mpl.addItems(
+        # Add Plot Vertical Color
+        self.plot_vertical_color_mpl = QComboBox()
+        self.plot_vertical_color_mpl.addItems(
             ["blue", "green", "red", "cyan", "magenta", "yellow", "black", "white"]
         )
-        self.plot_color_mpl.currentTextChanged.connect(self.change_color)
-        box_layout.addRow("Plot Color:", self.plot_color_mpl)
+        self.plot_vertical_color_mpl.currentTextChanged.connect(self.change_color)
+        box_layout.addRow("Plot Color:", self.plot_vertical_color_mpl)
 
         # Show Label
         self.show_label_mpl = QCheckBox()
@@ -78,7 +78,7 @@ class MplPlotVertical(QWidget):
 
     def show_label(self, flag):
         app = QApplication.activeWindow()
-        app.plot_horizo.set_show_names(True if flag else False)
+        app.plot_horizo.set_show_names(bool(flag))
         if not flag:
             app.canvas_plot.remove_texts()
         app.canvas_plot.update_plot()
@@ -92,10 +92,8 @@ class MplPlotVertical(QWidget):
         if not check_number(new_pos):
             return
         new_pos = float(new_pos)
-        if new_pos < 0:
-            new_pos = 0
-        if new_pos > 1:
-            new_pos = 1
+        new_pos = max(new_pos, 0)
+        new_pos = min(new_pos, 1)
         app = QApplication.activeWindow()
         app.plot_horizo.set_names_y(new_pos)
         app.canvas_plot.remove_texts()
@@ -109,7 +107,7 @@ class MplPlotVertical(QWidget):
         app.plot_horizo.set_z(new_z)
         self.show_label_mpl.setChecked(False)
         app.canvas_plot.update_plot()
-        if new_z > self.min_z and new_z < self.max_z:
+        if self.min_z < new_z < self.max_z:
             self.z_slider.setValue(new_z)
 
     def slider_released(self):

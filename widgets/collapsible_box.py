@@ -16,8 +16,8 @@ from PyQt6.QtWidgets import (
 
 
 class CollapsibleBox(QWidget):
-    def __init__(self, title="", parent=None):
-        super(CollapsibleBox, self).__init__(parent)
+    def __init__(self, title=""):
+        super().__init__()
 
         self.toggle_button = QToolButton(text=title, checkable=True, checked=False)
         self.toggle_button.setStyleSheet("QToolButton { border: none; }")
