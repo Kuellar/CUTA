@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QSplitter,
     QGridLayout,
+    QTabWidget,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
@@ -42,7 +43,7 @@ class Window(QMainWindow):  # pylint: disable=R0902
         self._create_actions()
         self._create_menu_bar()
 
-        # Create layout -> TODO: organize
+        # Create layout
         main_layout = QHBoxLayout()
         main_layout_splitter = QSplitter()
         self.files_menu = FilesMenu(self)
@@ -53,15 +54,21 @@ class Window(QMainWindow):  # pylint: disable=R0902
         widget_content.setLayout(content_layout)
         main_layout_splitter.addWidget(widget_content)
         main_layout.addWidget(main_layout_splitter)
+
+        # Workspace (plot + controls)
         canvas_workspace = QWidget()
         self.controls = QWidget()
-        self.canvas_plot = MplCanvas(self, width=10, height=8, dpi=100)
         canvas_workspace_layout = QHBoxLayout()
+        canvas_workspace_layout.setContentsMargins(0, 0, 0, 0)
         self.canvas_workspace_layout_splitter = QSplitter()
         canvas_workspace.setLayout(canvas_workspace_layout)
+
+        # Canvas plot (with tabs)
+        self.tabs = QTabWidget()
+        self.canvas_plot = MplCanvas(self, width=10, height=8, dpi=100)
         self.canvas_plot_grid = QWidget()
         canvas_plot_grid_layout = QGridLayout()
-        canvas_plot_grid_layout.setContentsMargins(0, 0, 10, 0)
+        canvas_plot_grid_layout.setContentsMargins(0, 10, 10, 0)
         self.canvas_plot_grid.setLayout(canvas_plot_grid_layout)
         self.canvas_plot_left_slider = SliderZoom(horizontal=False)
         self.canvas_plot_bottom_slider = SliderZoom(horizontal=True)
@@ -70,15 +77,17 @@ class Window(QMainWindow):  # pylint: disable=R0902
         canvas_plot_grid_layout.addWidget(self.canvas_plot_left_slider, 0, 0, 1, 1)
         canvas_plot_grid_layout.addWidget(self.canvas_plot_bottom_slider, 1, 1, 1, 1)
         canvas_plot_grid_layout.addWidget(canvas_plot_null, 1, 0, 1, 1)
-        self.canvas_workspace_layout_splitter.addWidget(self.canvas_plot_grid)
-        self.canvas_workspace_layout_splitter.addWidget(self.controls)
         canvas_plot_grid_layout.addWidget(self.canvas_plot, 0, 1, 1, 1)
+        self.tabs.addTab(self.canvas_plot_grid, "Matplotlib")
+
+        # Splitter Canvas and Settings
+        self.canvas_workspace_layout_splitter.addWidget(self.tabs)
+        self.canvas_workspace_layout_splitter.addWidget(self.controls)
+
+        # Canvas Controls
         canvas_workspace_layout.addWidget(self.canvas_workspace_layout_splitter)
         content_layout_splitter.addWidget(canvas_workspace)
-        self.output_console = ConsoleOutput()
-        content_layout_splitter.addWidget(self.output_console)
         content_layout.addWidget(content_layout_splitter)
-
         # Add things to Controls
         self.controls_layout = QVBoxLayout()
         self.controls.setLayout(self.controls_layout)
@@ -95,6 +104,10 @@ class Window(QMainWindow):  # pylint: disable=R0902
         self.controls_layout.addWidget(self.mpl_plot_settings)
 
         self.controls_layout.addStretch()
+
+        # Console output (after canvas plot)
+        self.output_console = ConsoleOutput()
+        content_layout_splitter.addWidget(self.output_console)
 
         # Create main widget and assign layout
         widget = QWidget()
