@@ -170,7 +170,13 @@ class Window(QMainWindow):  # pylint: disable=R0902
 
         if isinstance(plot_data, PlotHorizo):
             self.plot_horizo = plot_data
-            self.add_vertical_settings()
+            mpl_plot_vertical = self.findChild(MplPlotVertical, "mpl_plot_vertical")
+            if not mpl_plot_vertical:
+                self.add_vertical_settings()
+                mpl_plot_vertical = self.findChild(MplPlotVertical, "mpl_plot_vertical")
+            mpl_plot_vertical.set_new_file(
+                filename=self.plot_horizo.filename.split("/")[-1]
+            )
             self.output_console.print_output(
                 f"{len(self.plot_horizo.names)} functions."
             )
@@ -193,6 +199,7 @@ class Window(QMainWindow):  # pylint: disable=R0902
     def add_vertical_settings(self):
         # Plot Vertical Lines
         mpl_plot_vertical = MplPlotVertical()
+        mpl_plot_vertical.setObjectName("mpl_plot_vertical")
         self.controls_layout.insertWidget(3, mpl_plot_vertical)
 
 

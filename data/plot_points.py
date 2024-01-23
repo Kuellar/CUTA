@@ -5,7 +5,18 @@ RANGE = 5 / 100
 
 
 class PlotPoints:
-    def __init__(self, name: str, points: Points) -> None:
+    def __init__(
+        self,
+        name: str,
+        points: Points,
+        color: str = "blue",
+        plot_line: str = "-",
+        marker: str = "",
+        marker_color: str = "blue",
+        show_error: bool = False,
+        error_color: str = "blue",
+        drawstyle: str = "default",
+    ) -> None:
         self.name = name
         self.points = points
         self.x_range = [
@@ -18,13 +29,13 @@ class PlotPoints:
         ]
         self.x_limit = self.x_range
         self.y_limit = self.y_range
-        self.color = "blue"
-        self.plot_line = "-"
-        self.marker = ""
-        self.marker_color = "blue"
-        self.show_error = False
-        self.error_color = "blue"
-        self.drawstyle = "default"
+        self.color = color
+        self.plot_line = plot_line
+        self.marker = marker
+        self.marker_color = marker_color
+        self.show_error = show_error
+        self.error_color = error_color
+        self.drawstyle = drawstyle
 
     def set_x_limit(self, new_x_limit: list[float]) -> None:
         self.x_limit = new_x_limit

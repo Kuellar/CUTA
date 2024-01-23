@@ -24,6 +24,11 @@ class MplPlotVertical(QWidget):
         layout.addWidget(box)
         box_layout = QFormLayout()
 
+        # Add filename
+        self.filename_mpl = QLineEdit("")
+        self.filename_mpl.setReadOnly(True)
+        box_layout.addRow("Filename:", self.filename_mpl)
+
         # Add Plot Vertical Color
         self.plot_vertical_color_mpl = QComboBox()
         self.plot_vertical_color_mpl.addItems(
@@ -56,18 +61,11 @@ class MplPlotVertical(QWidget):
         self.z_mpl.textChanged.connect(self.change_z)
         box_layout.addRow("z:", self.z_mpl)
 
-        app = QApplication.activeWindow()
         self.min_z = None
         self.max_z = None
-        if app:
-            self.z_slider = QDoubleSlider(Qt.Orientation.Horizontal)
-            range_x = app.plot_points.x_range
-            self.min_z = range_x[0] / app.plot_horizo.x[-1] - 1
-            self.max_z = range_x[1] / app.plot_horizo.x[0] - 1
-            self.z_slider.setRange(self.min_z, self.max_z)
-            self.z_slider.setValue(0)
-            box_layout.addWidget(self.z_slider)
-            self.z_slider.sliderReleased.connect(self.slider_released)
+        self.z_slider = QDoubleSlider(Qt.Orientation.Horizontal)
+        box_layout.addWidget(self.z_slider)
+        self.z_slider.sliderReleased.connect(self.slider_released)
 
         box.setContentLayout(box_layout)
 
@@ -112,3 +110,13 @@ class MplPlotVertical(QWidget):
 
     def slider_released(self):
         self.z_mpl.setText(f"{self.z_slider.value():.4f}")
+
+    def set_new_file(self, filename):
+        app = QApplication.activeWindow()
+        self.filename_mpl.setText(filename)
+        self.z_mpl.setText("0")
+        range_x = app.plot_points.x_range
+        self.min_z = range_x[0] / app.plot_horizo.x[-1] - 1
+        self.max_z = range_x[1] / app.plot_horizo.x[0] - 1
+        self.z_slider.setRange(self.min_z, self.max_z)
+        self.z_slider.setValue(0)
