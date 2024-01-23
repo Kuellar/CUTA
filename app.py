@@ -162,6 +162,8 @@ class Window(QMainWindow):  # pylint: disable=R0902
         if error:
             self.output_console.print_output(error["msg"])
 
+        mpl_plot_vertical = self.findChild(MplPlotVertical, "mpl_plot_vertical")
+
         if isinstance(plot_data, PlotPoints):
             self.plot_points = plot_data
             self.output_console.print_output(
@@ -174,11 +176,14 @@ class Window(QMainWindow):  # pylint: disable=R0902
             if not mpl_plot_vertical:
                 self.add_vertical_settings()
                 mpl_plot_vertical = self.findChild(MplPlotVertical, "mpl_plot_vertical")
-            mpl_plot_vertical.set_new_file(
-                filename=self.plot_horizo.filename.split("/")[-1]
-            )
+
             self.output_console.print_output(
                 f"{len(self.plot_horizo.names)} functions."
+            )
+
+        if mpl_plot_vertical:
+            mpl_plot_vertical.set_new_file(
+                filename=self.plot_horizo.filename.split("/")[-1]
             )
 
         self.canvas_plot.update_plot()
