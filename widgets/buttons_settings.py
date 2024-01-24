@@ -1,3 +1,4 @@
+from datetime import datetime
 from PyQt6.QtGui import QPainter
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QStyleOption, QStyle, QApplication
 from PyQt6.QtCore import Qt, QSize
@@ -106,8 +107,21 @@ class ButtonsSettings(QWidget):
         self.move_button.set_active(False)
         self.zoom_button.set_active(False)
         self.active = None
-        if app.last_dir_open:
-            app.canvas_plot.fig.savefig(app.last_file_open[:-4])
+        name_file = (
+            app.last_dir_open
+            + "/"
+            + app.plot_points.name.split(".")[0]
+            + "-"
+            + datetime.now().strftime("%b:%-d-%H:%M:%S")
+        )
+        if (
+            app.last_dir_open
+            and app.last_file_open
+            and app.plot_points.name != "Start Plot"
+        ):
+            app.canvas_plot.fig.savefig(name_file)
+            app.reload_files()
+            app.open_image(name_file)
 
     def paintEvent(self, _):  # pylint: disable=C0103
         o = QStyleOption()

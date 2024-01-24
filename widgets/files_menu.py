@@ -69,9 +69,16 @@ class FilesMenu(QWidget):
                             normal_plot = True
                 except:  # pylint: disable=W0702
                     print("Unexpected error.")
-                file_widget = PushButtonMenu(file, normal_plot)
+                file_widget = PushButtonMenu(file, "normal" if normal_plot else "alt")
                 file_widget.clicked.connect(
                     partial(self.win.open_file, file_name=file, file_dir=folder_name)
+                )
+                box.addWidget(file_widget)
+
+            if file.endswith(".png"):
+                file_widget = PushButtonMenu(file, "image")
+                file_widget.clicked.connect(
+                    partial(self.win.open_image, file_name=folder_name + "/" + file)
                 )
                 box.addWidget(file_widget)
 

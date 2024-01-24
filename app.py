@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QSplitter,
     QGridLayout,
     QTabWidget,
+    QTabBar,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
@@ -24,6 +25,7 @@ from widgets.files_menu import FilesMenu
 from widgets.mpl_canvas import MplCanvas
 from widgets.slider_zoom import SliderZoom
 from widgets.mpl_plot_vertical import MplPlotVertical
+from widgets.image_viewer import ImageViewer
 from utils import open_data
 from data import Points, PlotPoints, PlotHorizo, Plot
 
@@ -64,7 +66,8 @@ class Window(QMainWindow):  # pylint: disable=R0902
         canvas_workspace.setLayout(canvas_workspace_layout)
 
         # Canvas plot (with tabs)
-        self.tabs = QTabWidget()
+        self.tabs = QTabWidget(movable=False, tabsClosable=True)
+        self.tabs.tabCloseRequested.connect(self.close_tab)
         self.canvas_plot = MplCanvas(self, width=10, height=8, dpi=100)
         self.canvas_plot_grid = QWidget()
         canvas_plot_grid_layout = QGridLayout()
@@ -79,6 +82,7 @@ class Window(QMainWindow):  # pylint: disable=R0902
         canvas_plot_grid_layout.addWidget(canvas_plot_null, 1, 0, 1, 1)
         canvas_plot_grid_layout.addWidget(self.canvas_plot, 0, 1, 1, 1)
         self.tabs.addTab(self.canvas_plot_grid, "Matplotlib")
+        self.tabs.tabBar().setTabButton(0, QTabBar.RightSide, None)
 
         # Splitter Canvas and Settings
         self.canvas_workspace_layout_splitter.addWidget(self.tabs)
@@ -219,6 +223,17 @@ class Window(QMainWindow):  # pylint: disable=R0902
         mpl_plot_vertical = MplPlotVertical()
         mpl_plot_vertical.setObjectName("mpl_plot_vertical")
         self.controls_layout.insertWidget(3, mpl_plot_vertical)
+
+    def open_image(self, file_name):
+        image = ImageViewer(file_name)
+        self.tabs.addTab(image, file_name.split("/")[-1])
+        self.tabs.setCurrentIndex(self.tabs.count() - 1)
+
+    def close_tab(self, idx):
+        self.tabs.removeTab(idx)
+
+    def reload_files(self):
+        self.files_menu.open_folder(self.last_dir_open)
 
 
 if __name__ == "__main__":
