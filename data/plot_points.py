@@ -27,6 +27,8 @@ class PlotPoints:
             points.y_border[0] - (points.y_border[1] - points.y_border[0]) * RANGE,
             points.y_border[1] + (points.y_border[1] - points.y_border[0]) * RANGE,
         ]
+        self.x_range_original = self.x_range
+        self.y_range_original = self.y_range
         self.x_limit = self.x_range
         self.y_limit = self.y_range
         self.color = color
@@ -36,6 +38,12 @@ class PlotPoints:
         self.show_error = show_error
         self.error_color = error_color
         self.drawstyle = drawstyle
+
+    def set_x_range(self, new_x_range: list[float]) -> None:
+        self.x_range = new_x_range
+
+    def set_y_range(self, new_y_range: list[float]) -> None:
+        self.y_range = new_y_range
 
     def set_x_limit(self, new_x_limit: list[float]) -> None:
         self.x_limit = new_x_limit
