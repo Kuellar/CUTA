@@ -86,7 +86,7 @@ CustomButton#active {
   background-color: #6e6e6e;
 }
 
-CustomButton#cut_button {
+CutButton {
   max-width: 25px;
   max-height: 25px;
   margin-left: 10px;
