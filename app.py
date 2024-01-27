@@ -26,6 +26,7 @@ from widgets.mpl_canvas import MplCanvas
 from widgets.slider_zoom import SliderZoom
 from widgets.mpl_plot_vertical import MplPlotVertical
 from widgets.image_viewer import ImageViewer
+from widgets.custom_button import CustomButton
 from utils import open_data
 from data import Points, PlotPoints, PlotHorizo, Plot
 
@@ -76,10 +77,11 @@ class Window(QMainWindow):  # pylint: disable=R0902
         self.canvas_plot_left_slider = SliderZoom(horizontal=False)
         self.canvas_plot_bottom_slider = SliderZoom(horizontal=True)
         self.canvas_plot_bottom_slider.setMaximumHeight(40)
-        canvas_plot_null = QWidget()
+        canvas_plot_cut_button = CustomButton("fa5s.cut")
+        canvas_plot_cut_button.setObjectName("cut_button")
         canvas_plot_grid_layout.addWidget(self.canvas_plot_left_slider, 0, 0, 1, 1)
         canvas_plot_grid_layout.addWidget(self.canvas_plot_bottom_slider, 1, 1, 1, 1)
-        canvas_plot_grid_layout.addWidget(canvas_plot_null, 1, 0, 1, 1)
+        canvas_plot_grid_layout.addWidget(canvas_plot_cut_button, 1, 0, 1, 1)
         canvas_plot_grid_layout.addWidget(self.canvas_plot, 0, 1, 1, 1)
         self.tabs.addTab(self.canvas_plot_grid, "Matplotlib")
         self.tabs.tabBar().setTabButton(0, QTabBar.RightSide, None)
