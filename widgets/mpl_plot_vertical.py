@@ -115,7 +115,7 @@ class MplPlotVertical(QWidget):
         app = QApplication.activeWindow()
         self.filename_mpl.setText(filename)
         self.z_mpl.setText("0")
-        range_x = app.plot_points.x_range
+        range_x = app.plot_points.x_range_original
         self.min_z = range_x[0] / app.plot_horizo.x[-1] - 1
         self.max_z = range_x[1] / app.plot_horizo.x[0] - 1
         self.z_slider.setRange(self.min_z, self.max_z)

@@ -90,8 +90,10 @@ class ButtonsSettings(QWidget):
         self.active = None
 
         app = QApplication.activeWindow()
-        x_original = app.plot_points.x_range
-        y_original = app.plot_points.y_range
+        x_original = app.plot_points.x_range_original
+        y_original = app.plot_points.y_range_original
+        app.plot_points.set_x_range(x_original)
+        app.plot_points.set_y_range(y_original)
         app.plot_points.set_x_limit(x_original)
         app.plot_points.set_y_limit(y_original)
         app.canvas_plot_bottom_slider.set_value(x_original)
