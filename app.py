@@ -227,7 +227,7 @@ class Window(QMainWindow):  # pylint: disable=R0902
         self.controls_layout.insertWidget(3, mpl_plot_vertical)
 
     def open_image(self, file_name):
-        image = ImageViewer(file_name)
+        image = ImageViewer(file_name, self.tabs)
         self.tabs.addTab(image, file_name.split("/")[-1])
         self.tabs.setCurrentIndex(self.tabs.count() - 1)
 

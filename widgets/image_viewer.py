@@ -4,7 +4,12 @@ from PyQt6.QtCore import Qt
 
 
 class ImageViewer(QLabel):
-    def __init__(self, filename):
+    def __init__(self, filename, container):
         super().__init__()
-        self.setPixmap(QPixmap(filename))
+        self.container = container
+        self.setPixmap(
+            QPixmap(filename).scaled(
+                container.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        )
         self.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
