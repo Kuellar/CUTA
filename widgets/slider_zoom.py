@@ -72,15 +72,9 @@ class SliderZoom(QWidget):
 
     def set_range(self, new_range):
         if self.horizontal:
-            self.first_input.setText(f"{new_range[0]:.4f}")
             self.slider.setRange(new_range[0], new_range[1])
-            self.slider.setValue((new_range[0], new_range[1]))
-            self.second_input.setText(f"{new_range[1]:.4f}")
         else:
-            self.first_input.setText(f"{new_range[1]:.4f}")
             self.slider.setRange(new_range[0], new_range[1])
-            self.slider.setValue((new_range[0], new_range[1]))
-            self.second_input.setText(f"{new_range[0]:.4f}")
 
     def set_value(self, value):
         if self.horizontal:

@@ -261,6 +261,8 @@ class MplCanvas(FigureCanvasQTAgg):
 
         self.parent.canvas_plot_bottom_slider.set_range(app.plot_points.x_range)
         self.parent.canvas_plot_left_slider.set_range(app.plot_points.y_range)
+        self.parent.canvas_plot_bottom_slider.set_value(app.plot_points.x_limit)
+        self.parent.canvas_plot_left_slider.set_value(app.plot_points.y_limit)
 
         # New data is plotted
         self.axes.cla()
@@ -325,5 +327,7 @@ class MplCanvas(FigureCanvasQTAgg):
         # Fix lim
         self.parent.canvas_plot_bottom_slider.set_range(plot_points.x_range)
         self.parent.canvas_plot_left_slider.set_range(plot_points.y_range)
+        self.parent.canvas_plot_bottom_slider.set_value(plot_points.x_limit)
+        self.parent.canvas_plot_left_slider.set_value(plot_points.y_limit)
         self.axes.set_xlim(plot_points.x_limit)
         self.axes.set_ylim(plot_points.y_limit)
