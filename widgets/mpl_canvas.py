@@ -311,6 +311,11 @@ class MplCanvas(FigureCanvasQTAgg):
                 linewidth=app.plot_horizo.width,
             )
 
+
+        # Plot normalization
+        if len(app.plot_normalization):
+            self.axes.plot(app.plot_normalization[0], app.plot_normalization[1], c='orange')
+        
         # Fix lim
         self.update_xlim()
         self.update_ylim()

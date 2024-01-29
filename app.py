@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
     QGridLayout,
     QTabWidget,
     QTabBar,
+    QPushButton,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
@@ -31,6 +32,10 @@ from utils import open_data
 from data import Points, PlotPoints, PlotHorizo, Plot
 
 
+import astropy.units as u
+from specutils.spectra.spectrum1d import Spectrum1D
+from specutils.fitting.continuum import fit_continuum
+
 class Window(QMainWindow):  # pylint: disable=R0902
     def __init__(self):  # pylint: disable=R0915
         super().__init__()
@@ -42,6 +47,8 @@ class Window(QMainWindow):  # pylint: disable=R0902
         self.plot = Plot()
         self.plot_points = None
         self.plot_horizo = PlotHorizo(names=[], x=[])
+        self.plot_normalization = []
+
 
         self._create_actions()
         self._create_menu_bar()
@@ -108,6 +115,11 @@ class Window(QMainWindow):  # pylint: disable=R0902
         # Plot Setting
         self.mpl_plot_settings = MplPlotSettings()
         self.controls_layout.addWidget(self.mpl_plot_settings)
+        # Normalization Button
+        self.normalization = QPushButton("Normalization")
+        self.controls_layout.addWidget(self.normalization)
+        self.normalization.clicked.connect(self.normal_plot)
+
 
         self.controls_layout.addStretch()
 
@@ -188,6 +200,7 @@ class Window(QMainWindow):  # pylint: disable=R0902
             self.output_console.print_output(
                 f"{len(self.plot_points.points.x)} data points."
             )
+            self.plot_normalization = []
 
         if isinstance(plot_data, PlotHorizo):
             self.plot_horizo = plot_data
@@ -236,6 +249,23 @@ class Window(QMainWindow):  # pylint: disable=R0902
 
     def reload_files(self):
         self.files_menu.open_folder(self.last_dir_open)
+
+    def normal_plot(self):
+        x = self.plot_points.points.x
+        y = self.plot_points.points.y
+        x_range_plot = []
+        y_range_plot = []
+        for i in range(len(x)):
+            if self.plot_points.x_limit[0] <= x[i] <= self.plot_points.x_limit[1]:
+                x_range_plot.append(x[i])
+                y_range_plot.append(y[i])
+        spectrum = Spectrum1D(flux=y_range_plot * u.Jy, spectral_axis=x_range_plot * u.um)
+        fitted_continuum = fit_continuum(spectrum)
+        y_fit = fitted_continuum(x_range_plot*u.um)
+        y_fit_new = y_fit.value
+        self.plot_normalization = [x_range_plot, y_fit_new]
+        self.canvas_plot.update_plot()
+        
 
 
 if __name__ == "__main__":

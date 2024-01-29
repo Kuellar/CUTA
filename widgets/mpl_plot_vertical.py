@@ -20,7 +20,7 @@ class MplPlotVertical(QWidget):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        box = CollapsibleBox("Plot vertical")
+        box = CollapsibleBox("Absorption Metals")
         layout.addWidget(box)
         box_layout = QFormLayout()
 
