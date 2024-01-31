@@ -31,6 +31,12 @@ from widgets.cut_button import CutButton
 from utils import open_data
 from data import Points, PlotPoints, PlotHorizo, Plot
 
+from lmfit.models import LinearModel, GaussianModel, PolynomialModel, QuadraticModel, SplineModel
+from lmfit import Parameters
+from scipy import ndimage
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Cursor
 
 import astropy.units as u
 from specutils.spectra.spectrum1d import Spectrum1D
@@ -48,6 +54,7 @@ class Window(QMainWindow):  # pylint: disable=R0902
         self.plot_points = None
         self.plot_horizo = PlotHorizo(names=[], x=[])
         self.plot_normalization = []
+        self.plot_normalization_lmfit = []
 
 
         self._create_actions()
@@ -116,9 +123,19 @@ class Window(QMainWindow):  # pylint: disable=R0902
         self.mpl_plot_settings = MplPlotSettings()
         self.controls_layout.addWidget(self.mpl_plot_settings)
         # Normalization Button
-        self.normalization = QPushButton("Normalization")
+        self.normalization = QPushButton("Normalization Spectulis")
         self.controls_layout.addWidget(self.normalization)
         self.normalization.clicked.connect(self.normal_plot)
+
+        # Normalization plots Button
+        self.normalization_lmfit = QPushButton("Normalization Lmfit")
+        self.controls_layout.addWidget(self.normalization_lmfit)
+        self.normalization_lmfit.clicked.connect(self.normal_plot_lmfit)
+
+        # # Normalization plots Button Actualizar normalizacion
+        # self.plot_normalization_lmfit_final = QPushButton("Normalization final")
+        # self.controls_layout.addWidget(self.plot_normalization_lmfit_final)
+        # self.plot_normalization_lmfit_final.clicked.connect(self.normal_plot_final)
 
 
         self.controls_layout.addStretch()
@@ -265,7 +282,125 @@ class Window(QMainWindow):  # pylint: disable=R0902
         y_fit_new = y_fit.value
         self.plot_normalization = [x_range_plot, y_fit_new]
         self.canvas_plot.update_plot()
-        
+
+    def normal_plot_lmfit(self):
+        x = self.plot_points.points.x
+        y = self.plot_points.points.y
+        x_range_plot = []
+        y_range_plot = []
+        for i in range(len(x)):
+            if self.plot_points.x_limit[0] <= x[i] <= self.plot_points.x_limit[1]:
+                x_range_plot.append(x[i])
+                y_range_plot.append(y[i])
+
+        y_smooth = ndimage.median_filter(y_range_plot, size=5) # cambiar valor para que sea autoatico
+
+        def seleccionar_valores_espaciados(arr):
+            if len(arr) >= 8:
+                # Si hay más de 8 valores, seleccionamos 8 espaciados
+                indices_espaciados = np.round(np.linspace(0, len(arr) - 1, 8)).astype(int)
+                valores_seleccionados = arr[indices_espaciados]
+            else:
+                # Si hay menos de 8 valores, tomamos los primeros 8 y completamos con el último valor
+                valores_seleccionados = np.pad(arr, (0, 8 - len(arr)), 'constant', constant_values=arr[-1])
+            return valores_seleccionados
+
+        knot_xvals = seleccionar_valores_espaciados(np.array(x_range_plot))
+        pars = Parameters()
+        bkg = SplineModel(prefix='bkg_', xknots=knot_xvals)
+        pars.update(bkg.guess(y_smooth, x_range_plot))
+        model = bkg
+        out = model.fit(y_smooth, pars, x=x_range_plot)
+        best_fits = out.best_fit
+        self.plot_normalization_lmfit = [x_range_plot, best_fits]
+        self.canvas_plot.update_plot()
+
+
+
+    # def normal_plot_lmfit(self):
+    #     x = self.plot_points.points.x
+    #     y = self.plot_points.points.y
+    #     x_range_plot = []
+    #     y_range_plot = []
+    #     for i in range(len(x)):
+    #         if self.plot_points.x_limit[0] <= x[i] <= self.plot_points.x_limit[1]:
+    #             x_range_plot.append(x[i])
+    #             y_range_plot.append(y[i])
+
+    #     y_smooth = ndimage.median_filter(y_range_plot, size=2) # cambiar valor para que sea autoatico
+
+    #     def onpick(event):
+    #         """
+    #         Función llamada cuando se hace clic en un punto.
+    #         Guarda la coordenada x del punto seleccionado en el array seleccionados.
+    #         """
+    #         # if event.artist != scatter:
+    #         #     return True
+    #         x, _ = event.artist.get_offsets()[event.ind[0]]
+    #         seleccionados.append(x)
+    #         print(f"Puntos seleccionados en el eje x: {seleccionados}")
+
+    #     def plot_interactivo(x_data, y_data):
+    #         """
+    #         Función que crea un gráfico interactivo con puntos seleccionables.
+    #         """
+    #         global seleccionados
+    #         seleccionados = []
+    #         fig, ax = plt.subplots()
+    #         scatter = ax.scatter(x_data, y_data, marker='+', picker=True, label='Datos')
+    #         # Configura un cursor para mostrar las coordenadas al pasar el ratón
+    #         cursor = Cursor(ax, useblit=True, color='red', linewidth=1)
+    #         # Conecta la función onpick al evento pick
+    #         fig.canvas.mpl_connect('pick_event', onpick)
+
+    #         pars = Parameters()
+
+    #         plt.show()
+    #         return seleccionados
+    #     x_knots = plot_interactivo(x_range_plot,y_smooth)
+    #     print(x_knots)
+    #     self.plot_normalization_lmfit = [x_knots, x_range_plot, y_smooth]
+    #     self.canvas_plot.update_plot()
+
+
+
+    # def normal_plot_final(self):
+    #     x = self.plot_points.points.x
+    #     y = self.plot_points.points.y
+    #     x_range_plot = []
+    #     y_range_plot = []
+    #     for i in range(len(x)):
+    #         if self.plot_points.x_limit[0] <= x[i] <= self.plot_points.x_limit[1]:
+    #             x_range_plot.append(x[i])
+    #             y_range_plot.append(y[i])
+
+    #     y_smooth = ndimage.median_filter(y_range_plot, size=2) # cambiar valor para que sea
+    #     x_fit = app.plot_normalization_lmfit[1]
+    #     y_fit = app.plot_normalization_lmfit[2]
+    #     x_selec_fit = app.plot_normalization_lmfit[0]
+
+    #     pars = Parameters()
+    #     bkg = SplineModel(prefix='bkg_', xknots=x_selec_fit)
+    #     pars.update(bkg.guess(y_fit, x_fit))
+
+    #     model = bkg
+
+    #     out = model.fit(y_fit, pars, x=x_fit)
+    #     best_fits = out.best_fit
+
+    #     # fl_normalizado  =  y /  best_fits
+    #     # err_normalizado =  ERROR[i] /  best_fits
+
+    #     # FLUX_norm.append(fl_normalizado)
+    #     # WAVE_norm.append(x)
+    #     # ERROR_norm.append(err_normalizado)
+
+    #     self.plot_normalization_lmfit_final = [x_fit, y_fit]
+    #     self.canvas_plot.update_plot()
+
+
+
+
 
 
 if __name__ == "__main__":

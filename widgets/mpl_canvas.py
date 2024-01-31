@@ -4,6 +4,7 @@ from matplotlib.backend_bases import MouseButton
 from matplotlib.patches import Rectangle
 from PyQt6.QtWidgets import QApplication
 
+from matplotlib.widgets import Cursor
 
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, window=None, width=5, height=4, dpi=100):
@@ -311,11 +312,19 @@ class MplCanvas(FigureCanvasQTAgg):
                 linewidth=app.plot_horizo.width,
             )
 
-
         # Plot normalization
         if len(app.plot_normalization):
             self.axes.plot(app.plot_normalization[0], app.plot_normalization[1], c='orange')
-        
+
+        # # Plot normalization lmfit
+        if len(app.plot_normalization_lmfit):
+            self.axes.plot(app.plot_normalization_lmfit[0], app.plot_normalization_lmfit[1], c='red')
+
+        # # Plot normalization lmfit seleccion
+        # if len(app.plot_normalization_lmfit_final):
+        #     self.axes.plot(app.plot_normalization_lmfit_final[0], app.plot_normalization_lmfit_final[1], c='red')
+
+
         # Fix lim
         self.update_xlim()
         self.update_ylim()

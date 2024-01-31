@@ -7,6 +7,7 @@ asdf-standard==1.0.3
 asdf-transform-schemas==0.4.0
 asdf-unit-schemas==0.1.0
 asdf-wcs-schemas==0.3.0
+asteval==0.9.31
 astroid==3.0.2
 astropy==6.0.0
 astropy-iers-data==0.2024.1.29.0.30.37
@@ -19,12 +20,14 @@ dill==0.3.7
 disutils==1.4.32.post2
 fonttools==4.47.2
 frozenlist==1.4.1
+future==0.18.3
 gwcs==0.20.0
 idna==3.6
 importlib-metadata==7.0.1
 isort==5.13.2
 jmespath==1.0.1
 kiwisolver==1.4.5
+lmfit==1.2.2
 matplotlib==3.8.2
 mccabe==0.7.0
 multidict==6.0.4
@@ -53,5 +56,6 @@ superqt==0.6.1
 tomli==2.0.1
 tomlkit==0.12.3
 typing_extensions==4.9.0
+uncertainties==3.1.7
 yarl==1.9.4
 zipp==3.17.0
